@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model Country {
+  id   BigInt @id @default(autoincrement())
+  code String @unique
+  name String
+
+  states State[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model State {
+  id        BigInt @id @default(autoincrement())
+  stateCode String @unique
+  name      String
+
+  countryId BigInt
+  country   Country @relation(fields: [countryId], references: [id])
+
+  districts District[]
+  villages  Village[]
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  subDistricts SubDistrict[]
+}
+
+model District {
+  id           BigInt @id @default(autoincrement())
+  districtCode String @unique
+  name         String
+
+  stateId BigInt
+  state   State  @relation(fields: [stateId], references: [id])
+
+  subDistricts SubDistrict[]
+  villages     Village[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SubDistrict {
+  id              BigInt @id @default(autoincrement())
+  subDistrictCode String @unique
+  name            String
+
+  stateId    BigInt
+  districtId BigInt
+
+  state    State    @relation(fields: [stateId], references: [id])
+  district District @relation(fields: [districtId], references: [id])
+
+  villages Village[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Village {
+  id          BigInt @id @default(autoincrement())
+  villageCode String @unique
+  name        String
+
+  stateId       BigInt
+  districtId    BigInt
+  subDistrictId BigInt
+
+  fullAddress String
+
+  state       State       @relation(fields: [stateId], references: [id])
+  district    District    @relation(fields: [districtId], references: [id])
+  subDistrict SubDistrict @relation(fields: [subDistrictId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@index([stateId])
+  @@index([districtId])
+  @@index([subDistrictId])
+}
