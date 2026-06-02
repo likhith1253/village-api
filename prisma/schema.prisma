@@ -52,7 +52,7 @@ model District {
 
 model SubDistrict {
   id              Int    @id @default(autoincrement())
-  subDistrictCode String @unique
+  subDistrictCode String
   name            String
 
   stateId    Int
@@ -65,6 +65,10 @@ model SubDistrict {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Sub-district codes are unique within a district, NOT globally.
+  // Sentinel code 99999 is reused across 5 states — composite key is required.
+  @@unique([districtId, subDistrictCode])
 }
 
 model Village {
