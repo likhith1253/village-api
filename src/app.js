@@ -1,7 +1,10 @@
 import express from 'express';
 import authRoutes from './routes/auth.routes.js';
 import apiKeyRoutes from './routes/apiKey.routes.js';
-import stateRoutes from './routes/state.routes.js';
+import stateRoutes from './routes/stateRoutes.js';
+import districtRoutes from './routes/district.routes.js';
+import subDistrictRoutes from './routes/subDistrict.routes.js';
+import villageRoutes from './routes/village.routes.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { authenticateApiKey } from './middlewares/apiKey.middleware.js';
 import { apiLogMiddleware } from './middlewares/apiLog.middleware.js';
@@ -48,6 +51,15 @@ app.use('/api/keys', apiKeyRoutes);
 
 console.log('Mounting route: /api/v1/states');
 app.use('/api/v1/states', stateRoutes);
+
+console.log('Mounting route: /api/v1/districts');
+app.use('/api/v1/districts', districtRoutes);
+
+console.log('Mounting route: /api/v1/subdistricts');
+app.use('/api/v1/subdistricts', subDistrictRoutes);
+
+console.log('Mounting route: /api/v1/villages');
+app.use('/api/v1/villages', villageRoutes);
 
 // Temporary Test API Key Route
 app.get('/api/test-key', authenticateApiKey, (req, res) => {
