@@ -6,8 +6,9 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model Country {
-  id   BigInt @id @default(autoincrement())
+  id   Int    @id @default(autoincrement())
   code String @unique
   name String
 
@@ -18,28 +19,29 @@ model Country {
 }
 
 model State {
-  id        BigInt @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
   stateCode String @unique
   name      String
 
-  countryId BigInt
+  countryId Int
   country   Country @relation(fields: [countryId], references: [id])
 
-  districts District[]
-  villages  Village[]
-
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  districts    District[]
+  villages     Village[]
   subDistricts SubDistrict[]
+  userAccess   UserStateAccess[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model District {
-  id           BigInt @id @default(autoincrement())
+  id           Int    @id @default(autoincrement())
   districtCode String @unique
   name         String
 
-  stateId BigInt
-  state   State  @relation(fields: [stateId], references: [id])
+  stateId Int
+  state   State @relation(fields: [stateId], references: [id])
 
   subDistricts SubDistrict[]
   villages     Village[]
@@ -49,12 +51,12 @@ model District {
 }
 
 model SubDistrict {
-  id              BigInt @id @default(autoincrement())
+  id              Int    @id @default(autoincrement())
   subDistrictCode String @unique
   name            String
 
-  stateId    BigInt
-  districtId BigInt
+  stateId    Int
+  districtId Int
 
   state    State    @relation(fields: [stateId], references: [id])
   district District @relation(fields: [districtId], references: [id])
@@ -66,13 +68,13 @@ model SubDistrict {
 }
 
 model Village {
-  id          BigInt @id @default(autoincrement())
+  id          Int    @id @default(autoincrement())
   villageCode String @unique
   name        String
 
-  stateId       BigInt
-  districtId    BigInt
-  subDistrictId BigInt
+  stateId       Int
+  districtId    Int
+  subDistrictId Int
 
   fullAddress String
 
@@ -87,4 +89,66 @@ model Village {
   @@index([stateId])
   @@index([districtId])
   @@index([subDistrictId])
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("USER")
+  plan         String   @default("FREE")
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  apiKeys     ApiKey[]
+  apiLogs     ApiLog[]
+  stateAccess UserStateAccess[]
+
+  @@index([email])
+}
+
+model ApiKey {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  name      String
+  userId    Int
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  apiLogs ApiLog[]
+
+  @@index([userId])
+}
+
+model UserStateAccess {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  stateId   Int
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  state State @relation(fields: [stateId], references: [id])
+
+  @@unique([userId, stateId])
+}
+
+model ApiLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int?
+  apiKeyId   Int?
+  endpoint   String
+  method     String
+  statusCode Int
+  createdAt  DateTime @default(now())
+
+  user   User?   @relation(fields: [userId], references: [id])
+  apiKey ApiKey? @relation(fields: [apiKeyId], references: [id])
+
+  @@index([userId])
+  @@index([apiKeyId])
+  @@index([createdAt])
 }
