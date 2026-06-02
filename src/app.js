@@ -4,6 +4,7 @@ import apiKeyRoutes from './routes/apiKey.routes.js';
 import stateRoutes from './routes/state.routes.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { authenticateApiKey } from './middlewares/apiKey.middleware.js';
+import { apiLogMiddleware } from './middlewares/apiLog.middleware.js';
 import prisma from './config/prisma.js';
 
 const app = express();
@@ -31,6 +32,12 @@ app.get('/api/debug/users', async (req, res, next) => {
   }
 });
 
+app.get('/api/debug/log-test', authenticateApiKey, apiLogMiddleware, (req, res) => {
+  res.json({
+    success: true,
+    message: "Log test successful"
+  });
+});
 
 // Routes
 console.log('Mounting route: /api/auth');
