@@ -1,8 +1,9 @@
 import * as villageService from '../services/village.service.js';
+import redis from '../config/redis.js';
 
 /**
  * Controller to handle village name search.
- * Performs query parameter validation and formats the response.
+ * Checks Redis cache first (key: villagesearch:<q>).
  */
 export const searchVillages = async (req, res, next) => {
   try {
@@ -16,7 +17,22 @@ export const searchVillages = async (req, res, next) => {
       });
     }
 
+    const queryStr = q.trim().toLowerCase();
+    const cacheKey = `villagesearch:${queryStr}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      console.log('CACHE HIT');
+      const data = typeof cached === 'string' ? JSON.parse(cached) : cached;
+      return res.status(200).json({
+        success: true,
+        count: data.length,
+        data: data
+      });
+    }
+
+    console.log('CACHE MISS');
     const villages = await villageService.searchVillagesByName(q.trim());
+    await redis.set(cacheKey, JSON.stringify(villages), { ex: 3600 });
 
     return res.status(200).json({
       success: true,

@@ -5,16 +5,27 @@ import stateRoutes from './routes/stateRoutes.js';
 import districtRoutes from './routes/district.routes.js';
 import subDistrictRoutes from './routes/subDistrict.routes.js';
 import villageRoutes from './routes/village.routes.js';
+import analyticsRoutes from './routes/analytics.routes.js';
+import usageRoutes from './routes/usage.routes.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { authenticateApiKey } from './middlewares/apiKey.middleware.js';
 import { apiLogMiddleware } from './middlewares/apiLog.middleware.js';
 import prisma from './config/prisma.js';
+import { specs, swaggerUi } from './config/swagger.js';
+import { rateLimiter } from './middlewares/rateLimiter.middleware.js';
 
 const app = express();
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Global Rate Limiter & Logging
+app.use(rateLimiter);
+app.use(apiLogMiddleware);
+
+// Swagger UI Route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 // Debug Routes
 app.get('/api/debug/runtime', (req, res) => {
@@ -60,6 +71,12 @@ app.use('/api/v1/subdistricts', subDistrictRoutes);
 
 console.log('Mounting route: /api/v1/villages');
 app.use('/api/v1/villages', villageRoutes);
+
+console.log('Mounting route: /api/analytics');
+app.use('/api/analytics', analyticsRoutes);
+
+console.log('Mounting route: /api/usage');
+app.use('/api/usage', usageRoutes);
 
 // Temporary Test API Key Route
 app.get('/api/test-key', authenticateApiKey, (req, res) => {
