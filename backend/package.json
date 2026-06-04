@@ -1,5 +1,15 @@
 {
+  "name": "village-api-backend",
+  "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js",
+    "postinstall": "prisma generate"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
     "@prisma/client": "^6.9.0",
     "@upstash/redis": "^1.38.0",
