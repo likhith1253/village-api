@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import './config/env.js';
 import app from './app.js';
 import prisma from './config/prisma.js';
 

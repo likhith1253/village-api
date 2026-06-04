@@ -1,7 +1,17 @@
 import express from 'express';
 import * as analyticsController from '../controllers/analytics.controller.js';
+import { authenticate } from '../middlewares/auth.middleware.js';
+import { errorResponse } from '../utils/apiError.js';
 
 const router = express.Router();
+
+const requireAdmin = (req, res, next) => {
+  if (req.user?.role !== 'ADMIN') {
+    return errorResponse(res, 'Forbidden: Admin access required', 403);
+  }
+  next();
+};
+
 
 // GET /api/analytics/summary - Get API request analytics summary
 /**
@@ -39,7 +49,7 @@ const router = express.Router();
  *                       type: integer
  *                       example: 2
  */
-router.get('/summary', analyticsController.getSummary);
+router.get('/summary', authenticate, requireAdmin, analyticsController.getSummary);
 
 // GET /api/analytics/endpoints - Get API endpoint usage stats
 /**
@@ -73,7 +83,7 @@ router.get('/summary', analyticsController.getSummary);
  *                         type: integer
  *                         example: 120
  */
-router.get('/endpoints', analyticsController.getEndpoints);
+router.get('/endpoints', authenticate, requireAdmin, analyticsController.getEndpoints);
 
 // GET /api/analytics/status-codes - Get API request status code stats
 /**
@@ -104,7 +114,7 @@ router.get('/endpoints', analyticsController.getEndpoints);
  *                     "400": 5
  *                     "401": 5
  */
-router.get('/status-codes', analyticsController.getStatusCodes);
+router.get('/status-codes', authenticate, requireAdmin, analyticsController.getStatusCodes);
 
 // GET /api/analytics/daily - Get API request daily stats trend (last 30 days)
 /**
@@ -139,6 +149,6 @@ router.get('/status-codes', analyticsController.getStatusCodes);
  *                         type: integer
  *                         example: 12
  */
-router.get('/daily', analyticsController.getDaily);
+router.get('/daily', authenticate, requireAdmin, analyticsController.getDaily);
 
 export default router;
