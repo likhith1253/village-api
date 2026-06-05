@@ -68,6 +68,10 @@ export default function Documentation() {
     }
   };
 
+  const docsUrl = import.meta.env.VITE_API_URL 
+    ? `${import.meta.env.VITE_API_URL.replace(/\/api$/, '')}/api-docs`
+    : 'http://localhost:3000/api-docs';
+
   return (
     <div className="space-y-6 select-none font-sans pb-12 relative">
       {/* Header Title & Swagger Button */}
@@ -78,7 +82,7 @@ export default function Documentation() {
         </div>
         
         <button
-          onClick={() => window.open('/api-docs', '_blank')}
+          onClick={() => window.open(docsUrl, '_blank')}
           className="flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 active:scale-[0.98] rounded-lg shadow-md hover:shadow-primary-500/10 transition-all duration-200 select-none shrink-0"
         >
           <span>Open Full Swagger Documentation</span>

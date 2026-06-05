@@ -18,13 +18,17 @@ export default function Sidebar({ onClose, isMobile = false }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
+  const docsUrl = import.meta.env.VITE_API_URL 
+    ? `${import.meta.env.VITE_API_URL.replace(/\/api$/, '')}/api-docs`
+    : 'http://localhost:3000/api-docs';
+
   const menuItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'API Keys', path: '/api-keys', icon: Key },
     { name: 'Usage', path: '/usage', icon: BarChart3 },
     { name: 'Analytics', path: '/analytics', icon: TrendingUp },
     { name: 'API Explorer', path: '/api-explorer', icon: Terminal },
-    { name: 'Documentation', path: '/docs', icon: BookOpen },
+    { name: 'Documentation', path: docsUrl, icon: BookOpen, isExternal: true },
     { name: 'Settings', path: '/settings', icon: Settings },
   ];
 
@@ -53,6 +57,21 @@ export default function Sidebar({ onClose, isMobile = false }) {
       <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
         {menuItems.map((item) => {
           const Icon = item.icon;
+          if (item.isExternal) {
+            return (
+              <a
+                key={item.name}
+                href={item.path}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={onClose}
+                className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border-l-2 text-text-secondary border-transparent hover:text-text-primary hover:bg-background-popover/30"
+              >
+                <Icon size={18} className="shrink-0 transition-transform duration-200 group-hover:scale-105" />
+                <span>{item.name}</span>
+              </a>
+            );
+          }
           return (
             <NavLink
               key={item.path}

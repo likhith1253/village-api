@@ -30,6 +30,10 @@ export default function Landing() {
   const [loading, setLoading] = useState(false);
   const [responseTime, setResponseTime] = useState(12);
 
+  const docsUrl = import.meta.env.VITE_API_URL 
+    ? `${import.meta.env.VITE_API_URL.replace(/\/api$/, '')}/api-docs`
+    : 'http://localhost:3000/api-docs';
+
   // Handle copy animation
   const handleCopy = (text, id) => {
     navigator.clipboard.writeText(text);
@@ -285,7 +289,7 @@ export default function Landing() {
           </button>
           
           <button
-            onClick={() => window.open('/api-docs', '_blank')}
+            onClick={() => window.open(docsUrl, '_blank')}
             className="flex items-center justify-center gap-2 px-7 py-4 text-xs font-bold uppercase tracking-wider text-text-primary bg-gradient-to-br from-background-card to-[#1c1c1e] hover:from-[#1c1c1e] hover:to-[#242426] border border-border hover:border-primary-500/20 active:scale-[0.98] rounded-lg transition-all duration-200 w-full sm:w-56"
           >
             <BookOpen size={14} />
@@ -518,7 +522,7 @@ export default function Landing() {
             <ul className="space-y-2 text-text-secondary font-medium">
               <li><Link to="/login" className="hover:text-primary-400 transition-colors">Developer Console</Link></li>
               <li><Link to="/login" className="hover:text-primary-400 transition-colors">API Explorer</Link></li>
-              <li><a href="/api-docs" target="_blank" className="hover:text-primary-400 transition-colors">Swagger Schema</a></li>
+              <li><a href={docsUrl} target="_blank" className="hover:text-primary-400 transition-colors">Swagger Schema</a></li>
             </ul>
           </div>
 

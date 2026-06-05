@@ -11,6 +11,14 @@ export default function NotFound() {
     document.title = '404 Page Not Found | CensusGrid';
   }, []);
 
+  const handleGoBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-text-primary font-sans flex flex-col justify-between overflow-x-hidden relative">
       {/* Background grid */}
@@ -38,7 +46,7 @@ export default function NotFound() {
         </p>
 
         <div className="flex gap-4 mt-8 w-full">
-          <Button onClick={() => navigate(-1)} className="flex-1 bg-gradient-to-br from-background-card to-[#1c1c1e] hover:from-[#1c1c1e] hover:to-[#242426] border border-border text-text-primary text-xs flex items-center justify-center gap-1.5 shadow-none">
+          <Button onClick={handleGoBack} className="flex-1 bg-gradient-to-br from-background-card to-[#1c1c1e] hover:from-[#1c1c1e] hover:to-[#242426] border border-border text-text-primary text-xs flex items-center justify-center gap-1.5 shadow-none">
             <ChevronLeft size={14} />
             <span>Go Back</span>
           </Button>

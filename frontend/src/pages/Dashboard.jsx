@@ -299,7 +299,7 @@ export default function Dashboard() {
                 label="Create API Key" 
               />
               <QuickActionButton 
-                onClick={() => navigate('/docs')} 
+                onClick={() => window.open(import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL.replace(/\/api$/, '')}/api-docs` : 'http://localhost:3000/api-docs', '_blank')} 
                 icon={BookOpen} 
                 label="Open Documentation" 
               />
