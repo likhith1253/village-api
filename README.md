@@ -1,4 +1,4 @@
-# Village API: Indian Administrative Divisions Database & SaaS Platform
+# CensusGrid: India's Geographic Data Platform
 
 A high-performance, developer-friendly developer portal and REST API platform providing administrative address records for over **457,000+ Indian villages** across **600+ districts** and **36 States & Union Territories**.
 

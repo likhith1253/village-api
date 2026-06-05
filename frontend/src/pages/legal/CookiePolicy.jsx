@@ -4,7 +4,7 @@ import Logo from '../../components/common/Logo';
 
 export default function CookiePolicy() {
   useEffect(() => {
-    document.title = 'Cookie Policy | Village API';
+    document.title = 'Cookie Policy | CensusGrid';
     window.scrollTo(0, 0);
   }, []);
 
@@ -35,13 +35,13 @@ export default function CookiePolicy() {
 
         <div className="prose prose-invert prose-xs text-text-secondary leading-relaxed space-y-6">
           <p>
-            This Cookie Policy describes how Village API implements browser storage and cookie tracking parameters inside our user console dashboard.
+            This Cookie Policy describes how CensusGrid implements browser storage and cookie tracking parameters inside our user console dashboard.
           </p>
 
           <section className="space-y-2">
             <h2 className="text-sm font-bold text-text-primary uppercase tracking-wider">1. Essential Local Storage</h2>
             <p>
-              To authorize requests and persist dashboard sessions without requiring repetitive logins, we store your JWT authentication token (`village_token`) directly in your browser's local storage environment.
+              To authorize requests and persist dashboard sessions without requiring repetitive logins, we store your JWT authentication token (`census_token`) directly in your browser's local storage environment.
             </p>
           </section>
 
@@ -55,7 +55,7 @@ export default function CookiePolicy() {
           <section className="space-y-2">
             <h2 className="text-sm font-bold text-text-primary uppercase tracking-wider">3. Managing Storage</h2>
             <p>
-              You can block or delete browser cookies and clear local storage via standard browser settings configurations. However, clearing `village_token` will sign you out and block access to secure developer paths.
+              You can block or delete browser cookies and clear local storage via standard browser settings configurations. However, clearing `census_token` will sign you out and block access to secure developer paths.
             </p>
           </section>
         </div>
@@ -63,7 +63,7 @@ export default function CookiePolicy() {
 
       {/* Footer */}
       <footer className="border-t border-border/80 bg-background-card/20 py-8 relative z-10 text-center text-[10px] text-text-muted">
-        <p>&copy; {new Date().getFullYear()} Village API. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} CensusGrid. All rights reserved.</p>
       </footer>
     </div>
   );

@@ -19,7 +19,7 @@ export default function Documentation() {
   const [copiedId, setCopiedId] = useState(null);
 
   useEffect(() => {
-    document.title = 'Documentation | Village API';
+    document.title = 'Documentation | CensusGrid';
   }, []);
 
   const handleCopy = (text, id) => {
@@ -98,7 +98,7 @@ export default function Documentation() {
               <span>1. Introduction</span>
             </h2>
             <p className="text-xs text-text-secondary leading-relaxed">
-              Welcome to the <strong>Village API SaaS Platform</strong>. This platform provides lightning-fast, highly optimized REST endpoints to query and filter Indian administrative divisions across <strong>States, Districts, Sub-districts, and Villages</strong>. 
+              Welcome to the <strong>CensusGrid Geographic Data Platform</strong>. This platform provides lightning-fast, highly optimized REST endpoints to query and filter Indian administrative divisions across <strong>States, Districts, Sub-districts, and Villages</strong>. 
             </p>
             <p className="text-xs text-text-secondary leading-relaxed mt-2">
               Built on a premium technological stack using <strong>Node.js, Express, PostgreSQL (Neon Serverless), and Upstash Redis caching</strong>, the platform is engineered to deliver sub-100ms response times for high-volume database reads. Whether you are building logistics routing, geolocational addressing, agricultural datasets, or compliance verification workflows, our platform provides the perfect SaaS data backbone.

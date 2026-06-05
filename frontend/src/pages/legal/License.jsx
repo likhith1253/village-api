@@ -4,7 +4,7 @@ import Logo from '../../components/common/Logo';
 
 export default function License() {
   useEffect(() => {
-    document.title = 'License Information | Village API';
+    document.title = 'License Information | CensusGrid';
     window.scrollTo(0, 0);
   }, []);
 
@@ -35,20 +35,20 @@ export default function License() {
 
         <div className="prose prose-invert prose-xs text-text-secondary leading-relaxed space-y-6">
           <p>
-            Village API services, data tables schema, and developer integrations are provided subject to specific developer licensing controls.
+            CensusGrid services, data tables schema, and developer integrations are provided subject to specific developer licensing controls.
           </p>
 
           <section className="space-y-2">
             <h2 className="text-sm font-bold text-text-primary uppercase tracking-wider">1. Platform Service License</h2>
             <p>
-              Under standard developer plans, Village API grants you a limited, non-exclusive, non-transferable, revocable license to access geographic resources and query village divisions data in accordance with our usage policies.
+              Under standard developer plans, CensusGrid grants you a limited, non-exclusive, non-transferable, revocable license to access geographic resources and query village divisions data in accordance with our usage policies.
             </p>
           </section>
 
           <section className="space-y-2">
             <h2 className="text-sm font-bold text-text-primary uppercase tracking-wider">2. Proprietary Data Rights</h2>
             <p>
-              The unified compilation, normalization formatting, indexing structures, and relational hierarchy mappings of Indian geographic databases remain the intellectual property of Village API. Scraping or dumping large segments of database catalogs to create competing geographic divisions APIs is prohibited.
+              The unified compilation, normalization formatting, indexing structures, and relational hierarchy mappings of Indian geographic databases remain the intellectual property of CensusGrid. Scraping or dumping large segments of database catalogs to create competing geographic divisions APIs is prohibited.
             </p>
           </section>
 
@@ -63,7 +63,7 @@ export default function License() {
 
       {/* Footer */}
       <footer className="border-t border-border/80 bg-background-card/20 py-8 relative z-10 text-center text-[10px] text-text-muted">
-        <p>&copy; {new Date().getFullYear()} Village API. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} CensusGrid. All rights reserved.</p>
       </footer>
     </div>
   );

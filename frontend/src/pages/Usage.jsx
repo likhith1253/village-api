@@ -44,7 +44,7 @@ export default function Usage() {
   };
 
   useEffect(() => {
-    document.title = 'Usage Statistics | Village API';
+    document.title = 'Usage Statistics | CensusGrid';
     fetchUsageData();
   }, []);
 

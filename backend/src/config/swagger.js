@@ -5,7 +5,7 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Village API',
+      title: 'CensusGrid',
       version: '1.0.0',
       description: 'Production-grade REST API for Indian village-level geographic data.',
     },

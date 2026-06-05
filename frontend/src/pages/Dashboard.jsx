@@ -75,7 +75,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    document.title = 'Dashboard | Village API';
+    document.title = 'Dashboard | CensusGrid';
     fetchData();
   }, []);
 

@@ -4,7 +4,7 @@ import Logo from '../../components/common/Logo';
 
 export default function TermsOfService() {
   useEffect(() => {
-    document.title = 'Terms of Service | Village API';
+    document.title = 'Terms of Service | CensusGrid';
     window.scrollTo(0, 0);
   }, []);
 
@@ -35,7 +35,7 @@ export default function TermsOfService() {
 
         <div className="prose prose-invert prose-xs text-text-secondary leading-relaxed space-y-6">
           <p>
-            Welcome to the Village API developer services. By accessing our platform console or invoking our REST API endpoints, you agree to comply with the terms and conditions outlined below.
+            Welcome to the CensusGrid geographic data developer services. By accessing our platform console or invoking our REST API endpoints, you agree to comply with the terms and conditions outlined below.
           </p>
 
           <section className="space-y-2">
@@ -75,7 +75,7 @@ export default function TermsOfService() {
 
       {/* Footer */}
       <footer className="border-t border-border/80 bg-background-card/20 py-8 relative z-10 text-center text-[10px] text-text-muted">
-        <p>&copy; {new Date().getFullYear()} Village API. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} CensusGrid. All rights reserved.</p>
       </footer>
     </div>
   );

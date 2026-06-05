@@ -61,7 +61,7 @@ export default function Settings() {
   };
 
   useEffect(() => {
-    document.title = 'Settings | Village API';
+    document.title = 'Settings | CensusGrid';
     fetchUserProfile();
   }, []);
 

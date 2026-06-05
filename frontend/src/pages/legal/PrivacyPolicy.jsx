@@ -4,7 +4,7 @@ import Logo from '../../components/common/Logo';
 
 export default function PrivacyPolicy() {
   useEffect(() => {
-    document.title = 'Privacy Policy | Village API';
+    document.title = 'Privacy Policy | CensusGrid';
     window.scrollTo(0, 0);
   }, []);
 
@@ -35,7 +35,7 @@ export default function PrivacyPolicy() {
 
         <div className="prose prose-invert prose-xs text-text-secondary leading-relaxed space-y-6">
           <p>
-            At Village API, we commit to protecting your developer account and query metrics privacy. This Privacy Policy details our data collection, security protection, and information usage guidelines.
+            At CensusGrid, we commit to protecting your developer account and query metrics privacy. This Privacy Policy details our data collection, security protection, and information usage guidelines.
           </p>
 
           <section className="space-y-2">
@@ -75,7 +75,7 @@ export default function PrivacyPolicy() {
 
       {/* Footer */}
       <footer className="border-t border-border/80 bg-background-card/20 py-8 relative z-10 text-center text-[10px] text-text-muted">
-        <p>&copy; {new Date().getFullYear()} Village API. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} CensusGrid. All rights reserved.</p>
       </footer>
     </div>
   );

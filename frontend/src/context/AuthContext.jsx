@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const checkAuthStatus = async () => {
-      const token = localStorage.getItem('village_token');
+      const token = localStorage.getItem('census_token');
       if (!token) {
         setLoading(false);
         return;
@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
         const response = await apiClient.get('/users/me');
         setUser(response.data.data);
       } catch (err) {
-        localStorage.removeItem('village_token');
+        localStorage.removeItem('census_token');
       } finally {
         setLoading(false);
       }
@@ -29,13 +29,13 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const response = await apiClient.post('/auth/login', { email, password });
     const { token, user: userData } = response.data.data;
-    localStorage.setItem('village_token', token);
+    localStorage.setItem('census_token', token);
     setUser(userData);
     return userData;
   };
 
   const logout = () => {
-    localStorage.removeItem('village_token');
+    localStorage.removeItem('census_token');
     setUser(null);
   };
 

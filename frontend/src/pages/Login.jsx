@@ -18,7 +18,7 @@ export default function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = 'Developer Login | Village API';
+    document.title = 'Developer Login | CensusGrid';
   }, []);
 
   const handleSubmit = async (e) => {
@@ -51,7 +51,7 @@ export default function Login() {
           <div className="mb-4">
             <Logo className="h-11 w-11" iconOnly={true} />
           </div>
-          <h1 className="text-2xl font-bold text-text-primary tracking-tight">Village API</h1>
+          <h1 className="text-2xl font-bold text-text-primary tracking-tight">CensusGrid</h1>
           <p className="text-sm text-text-secondary mt-1">Sign in to your developer dashboard</p>
         </div>
 

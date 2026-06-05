@@ -15,7 +15,7 @@ export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    document.title = 'Contact Support | Village API';
+    document.title = 'Contact Support | CensusGrid';
     window.scrollTo(0, 0);
   }, []);
 
@@ -75,8 +75,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <span className="text-[10px] font-bold text-text-muted uppercase block">Direct Email</span>
-                    <a href="mailto:support@villageapi.com" className="text-xs font-semibold text-text-primary hover:text-primary-400 transition-colors">
-                      support@villageapi.com
+                    <a href="mailto:support@censusgrid.com" className="text-xs font-semibold text-text-primary hover:text-primary-400 transition-colors">
+                      support@censusgrid.com
                     </a>
                   </div>
                 </div>
@@ -198,7 +198,7 @@ export default function Contact() {
 
       {/* Footer */}
       <footer className="border-t border-border/80 bg-background-card/20 py-8 relative z-10 text-center text-[10px] text-text-muted">
-        <p>&copy; {new Date().getFullYear()} Village API. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} CensusGrid. All rights reserved.</p>
       </footer>
     </div>
   );

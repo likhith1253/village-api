@@ -64,7 +64,7 @@ export default function ApiKeys() {
   };
 
   useEffect(() => {
-    document.title = 'API Keys | Village API';
+    document.title = 'API Keys | CensusGrid';
     fetchKeys();
   }, []);
 
@@ -157,7 +157,7 @@ export default function ApiKeys() {
         <div>
           <h1 className="text-2xl font-bold text-text-primary tracking-tight">API Keys</h1>
           <p className="text-xs text-text-secondary mt-1 leading-normal max-w-sm sm:max-w-md">
-            Generate and manage secure credentials for querying Village API services.
+            Generate and manage secure credentials for querying CensusGrid services.
           </p>
         </div>
         <button 

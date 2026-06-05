@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "c71be399-52e4-4d8e-9092-7f917540212f",
-		"name": "Village API SaaS Platform",
+		"name": "CensusGrid SaaS Platform",
 		"description": "Integration test suite for validating security policies, user profiles, API key management, rate limits, and analytics.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},

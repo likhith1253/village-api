@@ -8,7 +8,7 @@ export default function Maintenance() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = 'System Maintenance | Village API';
+    document.title = 'System Maintenance | CensusGrid';
   }, []);
 
   return (
@@ -49,7 +49,7 @@ export default function Maintenance() {
 
       {/* Footer */}
       <footer className="border-t border-border/80 bg-background-card/20 py-8 relative z-10 text-center text-[10px] text-text-muted">
-        <p>&copy; {new Date().getFullYear()} Village API. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} CensusGrid. All rights reserved.</p>
       </footer>
     </div>
   );

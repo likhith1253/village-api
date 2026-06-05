@@ -85,7 +85,7 @@ export default function Analytics() {
   };
 
   useEffect(() => {
-    document.title = 'Analytics | Village API';
+    document.title = 'Analytics | CensusGrid';
     fetchAnalyticsData();
   }, []);
 

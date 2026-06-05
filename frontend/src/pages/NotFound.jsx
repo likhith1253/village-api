@@ -8,7 +8,7 @@ export default function NotFound() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = '404 Page Not Found | Village API';
+    document.title = '404 Page Not Found | CensusGrid';
   }, []);
 
   return (
@@ -50,7 +50,7 @@ export default function NotFound() {
 
       {/* Footer */}
       <footer className="border-t border-border/80 bg-background-card/20 py-8 relative z-10 text-center text-[10px] text-text-muted">
-        <p>&copy; {new Date().getFullYear()} Village API. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} CensusGrid. All rights reserved.</p>
       </footer>
     </div>
   );

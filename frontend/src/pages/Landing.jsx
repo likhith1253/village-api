@@ -91,7 +91,7 @@ export default function Landing() {
       name: 'Village Search',
       method: 'GET',
       path: '/api/v1/villages?search=Agali',
-      curl: 'curl -H "x-api-key: your_api_key_here" \\\n  "https://api.villageapi.com/api/v1/villages?search=Agali"',
+      curl: 'curl -H "x-api-key: your_api_key_here" \\\n  "https://api.censusgrid.com/api/v1/villages?search=Agali"',
       latency: 34,
       response: {
         success: true,
@@ -111,7 +111,7 @@ export default function Landing() {
       name: 'Geographic Hierarchy',
       method: 'GET',
       path: '/api/v1/states',
-      curl: 'curl -H "x-api-key: your_api_key_here" \\\n  "https://api.villageapi.com/api/v1/states"',
+      curl: 'curl -H "x-api-key: your_api_key_here" \\\n  "https://api.censusgrid.com/api/v1/states"',
       latency: 48,
       response: {
         success: true,
@@ -127,7 +127,7 @@ export default function Landing() {
       name: 'Analytics Data',
       method: 'GET',
       path: '/api/v1/analytics/summary',
-      curl: 'curl -H "Authorization: Bearer your_jwt_token" \\\n  "https://api.villageapi.com/api/v1/analytics/summary"',
+      curl: 'curl -H "Authorization: Bearer your_jwt_token" \\\n  "https://api.censusgrid.com/api/v1/analytics/summary"',
       latency: 82,
       response: {
         success: true,
@@ -142,7 +142,7 @@ export default function Landing() {
       name: 'API Key Management',
       method: 'POST',
       path: '/api/v1/keys',
-      curl: 'curl -X POST -H "Authorization: Bearer your_jwt_token" \\\n  -H "Content-Type: application/json" \\\n  -d \'{"name": "Production App"}\' \\\n  "https://api.villageapi.com/api/v1/keys"',
+      curl: 'curl -X POST -H "Authorization: Bearer your_jwt_token" \\\n  -H "Content-Type: application/json" \\\n  -d \'{"name": "Production App"}\' \\\n  "https://api.censusgrid.com/api/v1/keys"',
       latency: 95,
       response: {
         success: true,
@@ -159,7 +159,7 @@ export default function Landing() {
       name: 'Redis Cache Test',
       method: 'GET',
       path: '/api/v1/villages/622345',
-      curl: 'curl -i -H "x-api-key: your_api_key_here" \\\n  "https://api.villageapi.com/api/v1/villages/622345"',
+      curl: 'curl -i -H "x-api-key: your_api_key_here" \\\n  "https://api.censusgrid.com/api/v1/villages/622345"',
       latency: 9,
       response: {
         success: true,
@@ -178,7 +178,7 @@ export default function Landing() {
 
   // Simulate query loading whenever tab changes
   useEffect(() => {
-    document.title = 'Village API | Indian Location Intelligence REST APIs';
+    document.title = 'CensusGrid | India\'s Geographic Data Platform';
   }, []);
 
   useEffect(() => {
@@ -546,7 +546,7 @@ export default function Landing() {
 
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[10px] text-text-muted font-semibold">
-            &copy; {new Date().getFullYear()} Village API. All rights reserved. Indian administrative divisions database services.
+            &copy; {new Date().getFullYear()} CensusGrid. All rights reserved. Indian geographic data services.
           </p>
           <div className="flex gap-4 text-[10px] font-bold text-text-muted">
             <span className="text-emerald-400 inline-flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> All Systems Operational</span>
