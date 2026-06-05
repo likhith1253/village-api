@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 
 // Layouts
@@ -18,6 +18,7 @@ import ApiExplorer from './pages/ApiExplorer';
 import Documentation from './pages/Documentation';
 import Settings from './pages/Settings';
 import Pricing from './pages/Pricing';
+import Payments from './pages/Payments';
 import AdminDashboard from './pages/AdminDashboard';
 
 // Trust, Legal & Production Pages
@@ -52,6 +53,15 @@ const AdminRoute = ({ children }) => {
 };
 
 export const AppRoutes = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('census_token');
+    if (token) {
+      navigate('/dashboard');
+    }
+  }, []);
+
   return (
     <Routes>
       {/* Auth Paths */}
@@ -79,6 +89,7 @@ export const AppRoutes = () => {
         <Route path="/api-explorer" element={<ApiExplorer />} />
         <Route path="/docs" element={<Documentation />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/payments" element={<Payments />} />
         <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       </Route>
 

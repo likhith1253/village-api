@@ -31,7 +31,7 @@ export default function Sidebar({ onClose, isMobile = false }) {
     { name: 'Analytics', path: '/analytics', icon: TrendingUp },
     { name: 'API Explorer', path: '/api-explorer', icon: Terminal },
     { name: 'Documentation', path: docsUrl, icon: BookOpen, isExternal: true },
-    { name: 'Pricing', path: '/pricing', icon: CreditCard },
+    { name: 'Payments', path: '/payments', icon: CreditCard },
     { name: 'Settings', path: '/settings', icon: Settings },
   ];
 
