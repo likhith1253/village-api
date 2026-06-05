@@ -25,7 +25,7 @@ export default function ApiExplorer() {
       id: 'states',
       name: 'Fetch All States',
       method: 'GET',
-      path: '/v1/states',
+      path: '/api/v1/states',
       description: 'Retrieves a list of all states sorted alphabetically by name.',
       params: []
     },
@@ -33,7 +33,7 @@ export default function ApiExplorer() {
       id: 'districts',
       name: 'Fetch Districts by State',
       method: 'GET',
-      path: '/v1/districts',
+      path: '/api/v1/districts',
       description: 'Retrieves a list of districts belonging to a state by its stateCode, sorted alphabetically.',
       params: [
         { name: 'stateCode', label: 'State Code', placeholder: 'e.g. AP or BR', required: true }
@@ -43,7 +43,7 @@ export default function ApiExplorer() {
       id: 'subdistricts',
       name: 'Fetch Sub-Districts by District',
       method: 'GET',
-      path: '/v1/subdistricts',
+      path: '/api/v1/subdistricts',
       description: 'Retrieves a list of sub-districts belonging to a district by its districtCode.',
       params: [
         { name: 'districtCode', label: 'District Code', placeholder: 'e.g. AP01', required: true }
@@ -53,7 +53,7 @@ export default function ApiExplorer() {
       id: 'village-search',
       name: 'Search Villages by Name',
       method: 'GET',
-      path: '/v1/villages/search',
+      path: '/api/v1/villages/search',
       description: 'Searches for villages using partial case-insensitive matching. Returns maximum 20 results.',
       params: [
         { name: 'q', label: 'Search Query (q)', placeholder: 'e.g. Agali', required: true },
@@ -66,7 +66,7 @@ export default function ApiExplorer() {
       id: 'village-details',
       name: 'Get Village Details',
       method: 'GET',
-      path: '/v1/villages/{villageCode}',
+      path: '/api/v1/villages/{villageCode}',
       description: 'Retrieves details of a single village including its full geographic parent hierarchy.',
       params: [
         { name: 'villageCode', label: 'Village Code', placeholder: 'e.g. 622345', required: true, isPathParam: true }
@@ -91,7 +91,7 @@ export default function ApiExplorer() {
   const fetchKeys = async () => {
     setKeysLoading(true);
     try {
-      const res = await apiClient.get('/keys');
+      const res = await apiClient.get('/api/keys');
       const activeKeys = (res.data.data || []).filter(k => k.isActive);
       setKeys(activeKeys);
       if (activeKeys.length > 0) {
@@ -226,9 +226,8 @@ export default function ApiExplorer() {
     );
   };
 
-  // Re-generate target URL for helper display
   const getDisplayUrl = () => {
-    let url = `/api${selectedEndpoint.path}`;
+    let url = selectedEndpoint.path;
     const queryParts = [];
 
     selectedEndpoint.params.forEach(p => {

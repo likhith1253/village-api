@@ -8,6 +8,7 @@ import AuthLayout from './layouts/AuthLayout';
 
 // Pages
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import ApiKeys from './pages/ApiKeys';
 import Usage from './pages/Usage';
@@ -46,6 +47,7 @@ export const AppRoutes = () => {
       {/* Auth Paths */}
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
       </Route>
 
       {/* Public Landing & Trust/Legal Pages */}

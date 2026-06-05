@@ -52,10 +52,10 @@ export default function Analytics() {
     setIsAdminRestricted(false);
     try {
       const [summaryRes, endpointsRes, statusCodesRes, dailyRes] = await Promise.all([
-        apiClient.get('/analytics/summary'),
-        apiClient.get('/analytics/endpoints'),
-        apiClient.get('/analytics/status-codes'),
-        apiClient.get('/analytics/daily')
+        apiClient.get('/api/analytics/summary'),
+        apiClient.get('/api/analytics/endpoints'),
+        apiClient.get('/api/analytics/status-codes'),
+        apiClient.get('/api/analytics/daily')
       ]);
 
       setSummary(summaryRes.data.data);

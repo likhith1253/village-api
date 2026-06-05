@@ -1,44 +1,55 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/ui/card';
 import Input from '../components/ui/input';
 import Button from '../components/ui/button';
-import { Eye, EyeOff, AlertCircle, Check } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import Logo from '../components/common/Logo';
 
-export default function Login() {
+export default function Register() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { login } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [successMessage, setSuccessMessage] = useState('');
- 
+
   useEffect(() => {
-    document.title = 'Developer Login | CensusGrid';
-    if (location.state?.registered) {
-      setSuccessMessage('Account created successfully! Please sign in.');
-      window.history.replaceState({}, document.title);
-    }
-  }, [location]);
+    document.title = 'Create Developer Account | CensusGrid';
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Frontend validations
+    if (name.trim().length < 2) {
+      setError('Name must be at least 2 characters.');
+      return;
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      await register(name, email, password);
+      // Navigate to login page on success with a success state parameter or alert
+      navigate('/login', { state: { registered: true } });
     } catch (err) {
       console.error(err);
-      // Retrieve friendly error message from backend error response
-      const errMsg = err.response?.data?.message || 'Invalid email or password. Please try again.';
+      const errMsg = err.response?.data?.message || 'Registration failed. Please try again.';
       setError(errMsg);
     } finally {
       setLoading(false);
@@ -58,17 +69,10 @@ export default function Login() {
             <Logo className="h-11 w-11" iconOnly={true} />
           </div>
           <h1 className="text-2xl font-bold text-text-primary tracking-tight">CensusGrid</h1>
-          <p className="text-sm text-text-secondary mt-1">Sign in to your developer dashboard</p>
+          <p className="text-sm text-text-secondary mt-1">Create your developer account</p>
         </div>
 
         <Card className="border border-border/80 bg-background-card/80 backdrop-blur-lg">
-          {successMessage && (
-            <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-sm flex items-start gap-2">
-              <Check size={18} className="shrink-0 mt-0.5" />
-              <span>{successMessage}</span>
-            </div>
-          )}
-
           {error && (
             <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-sm flex items-start gap-2">
               <AlertCircle size={18} className="shrink-0 mt-0.5" />
@@ -77,6 +81,18 @@ export default function Login() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            <Input
+              label="Full Name"
+              id="name"
+              type="text"
+              placeholder="John Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              disabled={loading}
+              autoComplete="name"
+            />
+
             <Input
               label="Email Address"
               id="email"
@@ -99,7 +115,7 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
-                autoComplete="current-password"
+                autoComplete="new-password"
               />
               <button
                 type="button"
@@ -111,27 +127,29 @@ export default function Login() {
               </button>
             </div>
 
-            <div className="flex items-center justify-between text-xs pt-1">
-              <label className="flex items-center gap-2 cursor-pointer text-text-secondary hover:text-text-primary">
-                <input type="checkbox" className="rounded border-border bg-background text-primary-600 focus:ring-primary-500/20 focus:ring-offset-background" />
-                <span>Remember me</span>
-              </label>
-              <a href="#forgot" className="font-medium text-primary-400 hover:text-primary-300">
-                Forgot password?
-              </a>
-            </div>
+            <Input
+              label="Confirm Password"
+              id="confirmPassword"
+              type="password"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              disabled={loading}
+              autoComplete="new-password"
+            />
 
             <Button type="submit" loading={loading} className="w-full mt-2">
-              Sign In
+              Create Account
             </Button>
           </form>
         </Card>
 
         {/* Footer */}
         <p className="text-center text-xs text-text-muted mt-6">
-          Don't have an account?{' '}
-          <Link to="/register" className="font-semibold text-primary-400 hover:text-primary-300">
-            Create an account
+          Already have an account?{' '}
+          <Link to="/login" className="font-semibold text-primary-400 hover:text-primary-300">
+            Sign in
           </Link>
         </p>
       </div>

@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
         return;
       }
       try {
-        const response = await apiClient.get('/users/me');
+        const response = await apiClient.get('/api/users/me');
         setUser(response.data.data);
       } catch (err) {
         localStorage.removeItem('census_token');
@@ -27,11 +27,16 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const response = await apiClient.post('/auth/login', { email, password });
+    const response = await apiClient.post('/api/auth/login', { email, password });
     const { token, user: userData } = response.data.data;
     localStorage.setItem('census_token', token);
     setUser(userData);
     return userData;
+  };
+
+  const register = async (name, email, password) => {
+    const response = await apiClient.post('/api/auth/register', { name, email, password });
+    return response.data;
   };
 
   const logout = () => {
@@ -40,7 +45,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );

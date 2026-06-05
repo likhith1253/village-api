@@ -46,7 +46,7 @@ export default function Settings() {
     setLoading(true);
     setProfileError('');
     try {
-      const res = await apiClient.get('/users/me');
+      const res = await apiClient.get('/api/users/me');
       const data = res.data.data;
       setProfile(data);
       setName(data.name || '');
@@ -85,7 +85,7 @@ export default function Settings() {
 
     setIsSavingProfile(true);
     try {
-      const res = await apiClient.put('/users/profile', { name, email });
+      const res = await apiClient.put('/api/users/profile', { name, email });
       setProfile(prev => ({ ...prev, name: res.data.data.name, email: res.data.data.email }));
       showToast('Profile information updated successfully');
     } catch (err) {
@@ -128,7 +128,7 @@ export default function Settings() {
 
     setIsUpdatingPassword(true);
     try {
-      await apiClient.put('/users/password', { currentPassword, newPassword });
+      await apiClient.put('/api/users/password', { currentPassword, newPassword });
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');

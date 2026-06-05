@@ -45,16 +45,16 @@ export default function Dashboard() {
     setAdminError(false);
     try {
       const [usageRes, profileRes] = await Promise.all([
-        apiClient.get('/usage/me'),
-        apiClient.get('/users/me')
+        apiClient.get('/api/usage/me'),
+        apiClient.get('/api/users/me')
       ]);
       setUsage(usageRes.data.data);
       setProfile(profileRes.data.data);
 
       try {
         const [summaryRes, endpointsRes] = await Promise.all([
-          apiClient.get('/analytics/summary'),
-          apiClient.get('/analytics/endpoints')
+          apiClient.get('/api/analytics/summary'),
+          apiClient.get('/api/analytics/endpoints')
         ]);
         setSummary(summaryRes.data.data);
         setEndpoints(endpointsRes.data.data || []);

@@ -32,7 +32,7 @@ export default function Usage() {
     }
     setError('');
     try {
-      const res = await apiClient.get('/usage/me');
+      const res = await apiClient.get('/api/usage/me');
       setUsage(res.data.data);
     } catch (err) {
       console.error('Failed to fetch usage data:', err);

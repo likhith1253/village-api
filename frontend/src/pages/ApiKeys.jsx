@@ -52,7 +52,7 @@ export default function ApiKeys() {
     setLoading(true);
     setError('');
     try {
-      const response = await apiClient.get('/keys');
+      const response = await apiClient.get('/api/keys');
       setKeys(response.data.data || []);
     } catch (err) {
       console.error(err);
@@ -73,7 +73,7 @@ export default function ApiKeys() {
     if (!newKeyName.trim()) return;
 
     try {
-      const response = await apiClient.post('/keys', { name: newKeyName });
+      const response = await apiClient.post('/api/keys', { name: newKeyName });
       const createdKey = response.data.data;
       setKeys((prev) => [createdKey, ...prev]);
       setCreatedKeyData(createdKey); // Save full key to show once
@@ -90,7 +90,7 @@ export default function ApiKeys() {
     if (!renameValue.trim() || !selectedKey) return;
 
     try {
-      const response = await apiClient.patch(`/keys/${selectedKey.id}`, { name: renameValue });
+      const response = await apiClient.patch(`/api/keys/${selectedKey.id}`, { name: renameValue });
       const updated = response.data.data;
       setKeys((prev) => prev.map((k) => (k.id === selectedKey.id ? { ...k, name: updated.name } : k)));
       setIsRenameOpen(false);
@@ -106,7 +106,7 @@ export default function ApiKeys() {
   const handleToggleStatus = async (keyItem) => {
     const nextStatus = !keyItem.isActive;
     try {
-      await apiClient.patch(`/keys/${keyItem.id}`, { isActive: nextStatus });
+      await apiClient.patch(`/api/keys/${keyItem.id}`, { isActive: nextStatus });
       setKeys((prev) => prev.map((k) => (k.id === keyItem.id ? { ...k, isActive: nextStatus } : k)));
       showToast(`API Key ${nextStatus ? 'enabled' : 'disabled'} successfully`);
     } catch (err) {
@@ -118,7 +118,7 @@ export default function ApiKeys() {
   const handleDeleteKey = async () => {
     if (!selectedKey) return;
     try {
-      await apiClient.delete(`/keys/${selectedKey.id}`);
+      await apiClient.delete(`/api/keys/${selectedKey.id}`);
       setKeys((prev) => prev.filter((k) => k.id !== selectedKey.id));
       setIsDeleteOpen(false);
       setSelectedKey(null);
