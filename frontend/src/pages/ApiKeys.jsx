@@ -64,6 +64,7 @@ export default function ApiKeys() {
   };
 
   useEffect(() => {
+    document.title = 'API Keys | Village API';
     fetchKeys();
   }, []);
 

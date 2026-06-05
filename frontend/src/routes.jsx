@@ -6,17 +6,25 @@ import { useAuth } from './context/AuthContext';
 import DashboardLayout from './layouts/DashboardLayout';
 import AuthLayout from './layouts/AuthLayout';
 
-// Pages (Importing empty page skeletons)
+// Pages
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ApiKeys from './pages/ApiKeys';
 import Usage from './pages/Usage';
 import Landing from './pages/Landing';
-
 import Analytics from './pages/Analytics';
 import ApiExplorer from './pages/ApiExplorer';
 import Documentation from './pages/Documentation';
 import Settings from './pages/Settings';
+
+// Trust, Legal & Production Pages
+import PrivacyPolicy from './pages/legal/PrivacyPolicy';
+import TermsOfService from './pages/legal/TermsOfService';
+import CookiePolicy from './pages/legal/CookiePolicy';
+import License from './pages/legal/License';
+import Contact from './pages/legal/Contact';
+import NotFound from './pages/NotFound';
+import Maintenance from './pages/Maintenance';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -35,12 +43,21 @@ const PublicRoute = ({ children }) => {
 export const AppRoutes = () => {
   return (
     <Routes>
+      {/* Auth Paths */}
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
       </Route>
 
+      {/* Public Landing & Trust/Legal Pages */}
       <Route path="/" element={<Landing />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<TermsOfService />} />
+      <Route path="/cookies" element={<CookiePolicy />} />
+      <Route path="/license" element={<License />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/maintenance" element={<Maintenance />} />
 
+      {/* Dashboard Protected Paths */}
       <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/api-keys" element={<ApiKeys />} />
@@ -51,7 +68,8 @@ export const AppRoutes = () => {
         <Route path="/settings" element={<Settings />} />
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* Custom 404 Route */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };

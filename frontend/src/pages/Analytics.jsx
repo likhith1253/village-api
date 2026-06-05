@@ -85,6 +85,7 @@ export default function Analytics() {
   };
 
   useEffect(() => {
+    document.title = 'Analytics | Village API';
     fetchAnalyticsData();
   }, []);
 

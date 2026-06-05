@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from '../components/ui/card';
 import { 
   BookOpen, 
@@ -17,6 +17,10 @@ import {
 
 export default function Documentation() {
   const [copiedId, setCopiedId] = useState(null);
+
+  useEffect(() => {
+    document.title = 'Documentation | Village API';
+  }, []);
 
   const handleCopy = (text, id) => {
     navigator.clipboard.writeText(text);

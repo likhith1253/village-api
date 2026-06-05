@@ -61,6 +61,7 @@ export default function Settings() {
   };
 
   useEffect(() => {
+    document.title = 'Settings | Village API';
     fetchUserProfile();
   }, []);
 

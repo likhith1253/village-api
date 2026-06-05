@@ -75,6 +75,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
+    document.title = 'Dashboard | Village API';
     fetchData();
   }, []);
 

@@ -105,6 +105,7 @@ export default function ApiExplorer() {
   };
 
   useEffect(() => {
+    document.title = 'API Explorer | Village API';
     fetchKeys();
   }, []);
 
