@@ -178,11 +178,11 @@ export default function Documentation() {
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center text-[10px] text-text-secondary font-bold uppercase tracking-wider">
                       <span>cURL Example</span>
-                      <CopyButton id="curl-states" text='curl -H "x-api-key: your_key" http://localhost:3000/api/v1/states' />
+                      <CopyButton id="curl-states" text='curl -H "x-api-key: your_key" https://api.censusgrid.in/api/v1/states' />
                     </div>
                     <pre className="bg-[#09090b] border border-border p-3 rounded-lg font-mono text-[10.5px] text-primary-400 overflow-x-auto select-all">
                       curl -H "x-api-key: your_key" \<br />
-                      &nbsp;&nbsp;http://localhost:3000/api/v1/states
+                      &nbsp;&nbsp;https://api.censusgrid.in/api/v1/states
                     </pre>
                   </div>
                   {/* response snippet */}
@@ -248,11 +248,11 @@ export default function Documentation() {
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center text-[10px] text-text-secondary font-bold uppercase tracking-wider">
                       <span>cURL Example</span>
-                      <CopyButton id="curl-districts" text='curl -H "x-api-key: your_key" "http://localhost:3000/api/v1/districts?stateCode=AP"' />
+                      <CopyButton id="curl-districts" text='curl -H "x-api-key: your_key" "https://api.censusgrid.in/api/v1/districts?stateCode=AP"' />
                     </div>
                     <pre className="bg-[#09090b] border border-border p-3 rounded-lg font-mono text-[10.5px] text-primary-400 overflow-x-auto select-all">
                       curl -H "x-api-key: your_key" \<br />
-                      &nbsp;&nbsp;"http://localhost:3000/api/v1/districts?stateCode=AP"
+                      &nbsp;&nbsp;"https://api.censusgrid.in/api/v1/districts?stateCode=AP"
                     </pre>
                   </div>
                   {/* response snippet */}
@@ -318,11 +318,11 @@ export default function Documentation() {
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center text-[10px] text-text-secondary font-bold uppercase tracking-wider">
                       <span>cURL Example</span>
-                      <CopyButton id="curl-subdist" text='curl -H "x-api-key: your_key" "http://localhost:3000/api/v1/subdistricts?districtCode=AP01"' />
+                      <CopyButton id="curl-subdist" text='curl -H "x-api-key: your_key" "https://api.censusgrid.in/api/v1/subdistricts?districtCode=AP01"' />
                     </div>
                     <pre className="bg-[#09090b] border border-border p-3 rounded-lg font-mono text-[10.5px] text-primary-400 overflow-x-auto select-all">
                       curl -H "x-api-key: your_key" \<br />
-                      &nbsp;&nbsp;"http://localhost:3000/api/v1/subdistricts?districtCode=AP01"
+                      &nbsp;&nbsp;"https://api.censusgrid.in/api/v1/subdistricts?districtCode=AP01"
                     </pre>
                   </div>
                   {/* response snippet */}
@@ -394,11 +394,11 @@ export default function Documentation() {
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center text-[10px] text-text-secondary font-bold uppercase tracking-wider">
                       <span>cURL Example</span>
-                      <CopyButton id="curl-vsearch" text='curl -H "x-api-key: your_key" "http://localhost:3000/api/v1/villages/search?q=Agali"' />
+                      <CopyButton id="curl-vsearch" text='curl -H "x-api-key: your_key" "https://api.censusgrid.in/api/v1/villages/search?q=Agali"' />
                     </div>
                     <pre className="bg-[#09090b] border border-border p-3 rounded-lg font-mono text-[10.5px] text-primary-400 overflow-x-auto select-all">
                       curl -H "x-api-key: your_key" \<br />
-                      &nbsp;&nbsp;"http://localhost:3000/api/v1/villages/search?q=Agali"
+                      &nbsp;&nbsp;"https://api.censusgrid.in/api/v1/villages/search?q=Agali"
                     </pre>
                   </div>
                   {/* response snippet */}
@@ -463,11 +463,11 @@ export default function Documentation() {
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center text-[10px] text-text-secondary font-bold uppercase tracking-wider">
                       <span>cURL Example</span>
-                      <CopyButton id="curl-vdetails" text='curl -H "x-api-key: your_key" http://localhost:3000/api/v1/villages/622345' />
+                      <CopyButton id="curl-vdetails" text='curl -H "x-api-key: your_key" https://api.censusgrid.in/api/v1/villages/622345' />
                     </div>
                     <pre className="bg-[#09090b] border border-border p-3 rounded-lg font-mono text-[10.5px] text-primary-400 overflow-x-auto select-all">
                       curl -H "x-api-key: your_key" \<br />
-                      &nbsp;&nbsp;http://localhost:3000/api/v1/villages/622345
+                      &nbsp;&nbsp;https://api.censusgrid.in/api/v1/villages/622345
                     </pre>
                   </div>
                   {/* response snippet */}
