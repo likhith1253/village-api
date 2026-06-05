@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/ui/card';
 import Input from '../components/ui/input';
 import Button from '../components/ui/button';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
+import Logo from '../components/common/Logo';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -15,6 +16,10 @@ export default function Login() {
   
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = 'Developer Login | Village API';
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,10 +48,8 @@ export default function Login() {
       <div className="w-full max-w-md z-10">
         {/* Logo / Header */}
         <div className="flex flex-col items-center mb-8">
-          <div className="h-12 w-12 rounded-xl bg-primary-950 border border-primary-500/30 flex items-center justify-center mb-4 shadow-lg shadow-primary-500/10">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#a855f7" strokeWidth="2.5">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
+          <div className="mb-4">
+            <Logo className="h-11 w-11" iconOnly={true} />
           </div>
           <h1 className="text-2xl font-bold text-text-primary tracking-tight">Village API</h1>
           <p className="text-sm text-text-secondary mt-1">Sign in to your developer dashboard</p>

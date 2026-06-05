@@ -30,7 +30,7 @@
 
 @layer components {
   .shadow-glow-purple {
-    box-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.12);
+    box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.15);
   }
   .glass-card {
     @apply bg-background-card/65 backdrop-blur-md border border-border/85 rounded-xl;

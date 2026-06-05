@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import Logo from '../components/common/Logo';
 import { 
   Terminal, 
   Key, 
@@ -177,6 +178,10 @@ export default function Landing() {
 
   // Simulate query loading whenever tab changes
   useEffect(() => {
+    document.title = 'Village API | Indian Location Intelligence REST APIs';
+  }, []);
+
+  useEffect(() => {
     setLoading(true);
     const delay = setTimeout(() => {
       setLoading(false);
@@ -194,14 +199,7 @@ export default function Landing() {
       {/* 1. TOP HEADER NAVIGATION BAR */}
       <header className="sticky top-0 z-40 bg-background/85 backdrop-blur-md border-b border-border/70 relative">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-lg bg-primary-950 border border-primary-500/30 flex items-center justify-center shadow-lg shadow-primary-500/10">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#a855f7" strokeWidth="2.5">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-            </div>
-            <span className="font-bold text-text-primary tracking-tight text-[18px]">Village API</span>
-          </div>
+          <Logo className="h-8 w-8" />
 
           {/* Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-text-secondary">
@@ -504,20 +502,55 @@ export default function Landing() {
       </section>
 
       {/* 8. FOOTER SECTION */}
-      <footer className="bg-background-card/60 backdrop-blur-sm border-t border-border/80 z-10 relative">
-        <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2.5">
-            <div className="h-7 w-7 rounded bg-primary-950 border border-primary-500/30 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#a855f7" strokeWidth="2.5">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-            </div>
-            <span className="font-bold text-text-primary tracking-tight text-sm">Village API</span>
+      <footer className="bg-background-card/45 backdrop-blur-md border-t border-border/80 z-10 relative pt-16 pb-12 select-none font-sans text-xs">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10 border-b border-border/40 pb-12 mb-8">
+          {/* Column 1: Logo & Summary */}
+          <div className="space-y-4">
+            <Logo className="h-8 w-8" />
+            <p className="text-[11px] text-text-secondary leading-relaxed font-medium">
+              High-fidelity location intelligence and administrative database mapping 457,000+ Indian villages. Built for performance, caching, and developer experience.
+            </p>
           </div>
 
-          <p className="text-xs text-text-muted font-semibold">
+          {/* Column 2: Platform Links */}
+          <div className="space-y-3.5">
+            <h4 className="text-[10px] font-bold text-text-primary uppercase tracking-wider">Product</h4>
+            <ul className="space-y-2 text-text-secondary font-medium">
+              <li><Link to="/login" className="hover:text-primary-400 transition-colors">Developer Console</Link></li>
+              <li><Link to="/login" className="hover:text-primary-400 transition-colors">API Explorer</Link></li>
+              <li><a href="/api-docs" target="_blank" className="hover:text-primary-400 transition-colors">Swagger Schema</a></li>
+            </ul>
+          </div>
+
+          {/* Column 3: Trust & Legal */}
+          <div className="space-y-3.5">
+            <h4 className="text-[10px] font-bold text-text-primary uppercase tracking-wider">Trust & Legal</h4>
+            <ul className="space-y-2 text-text-secondary font-medium">
+              <li><Link to="/privacy" className="hover:text-primary-400 transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="hover:text-primary-400 transition-colors">Terms of Service</Link></li>
+              <li><Link to="/cookies" className="hover:text-primary-400 transition-colors">Cookie Policy</Link></li>
+              <li><Link to="/license" className="hover:text-primary-400 transition-colors">Platform License</Link></li>
+            </ul>
+          </div>
+
+          {/* Column 4: Resources */}
+          <div className="space-y-3.5">
+            <h4 className="text-[10px] font-bold text-text-primary uppercase tracking-wider">Contact & Resources</h4>
+            <ul className="space-y-2 text-text-secondary font-medium">
+              <li><Link to="/contact" className="hover:text-primary-400 transition-colors">Contact Support</Link></li>
+              <li><a href="https://github.com/likhith1253/village-api" target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors">GitHub Repository</a></li>
+              <li><a href="/health" target="_blank" className="hover:text-primary-400 transition-colors">API Health Check</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-[10px] text-text-muted font-semibold">
             &copy; {new Date().getFullYear()} Village API. All rights reserved. Indian administrative divisions database services.
           </p>
+          <div className="flex gap-4 text-[10px] font-bold text-text-muted">
+            <span className="text-emerald-400 inline-flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> All Systems Operational</span>
+          </div>
         </div>
       </footer>
 

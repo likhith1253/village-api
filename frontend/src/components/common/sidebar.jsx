@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import Logo from './Logo';
 import {
   LayoutDashboard,
   Key,
@@ -37,14 +38,7 @@ export default function Sidebar({ onClose, isMobile = false }) {
     <div className="flex flex-col h-full bg-background-card border-r border-border/80 w-64 text-text-primary select-none font-sans">
       {/* Brand logo header */}
       <div className="flex items-center justify-between px-6 py-5 border-b border-border/80 h-16 shrink-0 bg-background-card/50 backdrop-blur-sm">
-        <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-primary-950 border border-primary-500/30 flex items-center justify-center shadow-lg shadow-primary-500/10">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#a855f7" strokeWidth="2.5">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
-          </div>
-          <span className="font-bold text-text-primary tracking-tight text-[17px]">Village API</span>
-        </div>
+        <Logo className="h-7 w-7" />
         {isMobile && (
           <button
             onClick={onClose}
