@@ -58,7 +58,10 @@ export const getUserProfile = async (userId) => {
       email: true,
       role: true,
       plan: true,
-      createdAt: true
+      createdAt: true,
+      stripeCustomerId: true,
+      subscriptionStatus: true,
+      subscriptionEndDate: true
     }
   });
 

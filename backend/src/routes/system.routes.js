@@ -51,5 +51,6 @@ const requireAdmin = (req, res, next) => {
  *         description: Forbidden (Admin access required)
  */
 router.get('/info', authenticate, requireAdmin, systemController.getSystemInfo);
+router.get('/admin/dashboard', authenticate, requireAdmin, systemController.getAdminDashboard);
 
 export default router;

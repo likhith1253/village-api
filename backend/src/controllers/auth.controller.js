@@ -63,7 +63,9 @@ export const login = async (req, res, next) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        plan: user.plan
+        plan: user.plan,
+        subscriptionStatus: user.subscriptionStatus,
+        subscriptionEndDate: user.subscriptionEndDate
       }
     }, 200);
   } catch (error) {

@@ -21,6 +21,7 @@
     "jsonwebtoken": "^9.0.3",
     "prisma": "^6.9.0",
     "puppeteer-core": "^24.43.1",
+    "stripe": "^22.2.0",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1",
     "xlsx": "^0.18.5",

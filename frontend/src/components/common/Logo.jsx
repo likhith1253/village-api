@@ -1,8 +1,9 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Logo({ className = "h-8 w-8", iconOnly = false }) {
   return (
-    <div className="flex items-center gap-2.5 select-none font-sans">
+    <Link to="/dashboard" className="flex items-center gap-2.5 select-none font-sans hover:opacity-90 active:scale-[0.98] transition-all">
       <div className={`${className} shrink-0`}>
         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-full w-auto">
           {/* Subtle background coordinate grid lines */}
@@ -44,6 +45,6 @@ export default function Logo({ className = "h-8 w-8", iconOnly = false }) {
           Census<span className="text-primary-500 font-black">Grid</span>
         </span>
       )}
-    </div>
+    </Link>
   );
 }

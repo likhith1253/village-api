@@ -26,6 +26,20 @@ export const AuthProvider = ({ children }) => {
     checkAuthStatus();
   }, []);
 
+  const refreshUser = async () => {
+    const token = localStorage.getItem('census_token');
+    if (!token) return null;
+    try {
+      const response = await apiClient.get('/api/users/me');
+      setUser(response.data.data);
+      return response.data.data;
+    } catch (err) {
+      localStorage.removeItem('census_token');
+      setUser(null);
+      return null;
+    }
+  };
+
   const login = async (email, password) => {
     const response = await apiClient.post('/api/auth/login', { email, password });
     const { token, user: userData } = response.data.data;
@@ -45,7 +59,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, register }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, register, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

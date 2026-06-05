@@ -11,11 +11,13 @@ import {
   BookOpen,
   Settings,
   LogOut,
-  X
+  X,
+  CreditCard,
+  ShieldAlert
 } from 'lucide-react';
 
 export default function Sidebar({ onClose, isMobile = false }) {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
 
   const docsUrl = import.meta.env.VITE_API_URL 
@@ -29,8 +31,13 @@ export default function Sidebar({ onClose, isMobile = false }) {
     { name: 'Analytics', path: '/analytics', icon: TrendingUp },
     { name: 'API Explorer', path: '/api-explorer', icon: Terminal },
     { name: 'Documentation', path: docsUrl, icon: BookOpen, isExternal: true },
+    { name: 'Pricing', path: '/pricing', icon: CreditCard },
     { name: 'Settings', path: '/settings', icon: Settings },
   ];
+
+  if (user?.role?.toUpperCase() === 'ADMIN') {
+    menuItems.splice(1, 0, { name: 'Admin Panel', path: '/admin', icon: ShieldAlert });
+  }
 
   const handleLogout = () => {
     logout();

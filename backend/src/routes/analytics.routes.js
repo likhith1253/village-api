@@ -5,11 +5,14 @@ import { errorResponse } from '../utils/apiError.js';
 
 const router = express.Router();
 
-const requireAdmin = (req, res, next) => {
-  if (req.user?.role !== 'ADMIN') {
-    return errorResponse(res, 'Forbidden: Admin access required', 403);
+const requireAnalyticsAccess = (req, res, next) => {
+  const role = req.user?.role?.toUpperCase();
+  const plan = req.user?.plan?.toUpperCase();
+
+  if (role === 'ADMIN' || plan === 'PRO' || plan === 'ENTERPRISE') {
+    return next();
   }
-  next();
+  return errorResponse(res, 'Upgrade to Pro for Advanced Analytics', 403);
 };
 
 
@@ -49,7 +52,7 @@ const requireAdmin = (req, res, next) => {
  *                       type: integer
  *                       example: 2
  */
-router.get('/summary', authenticate, requireAdmin, analyticsController.getSummary);
+router.get('/summary', authenticate, requireAnalyticsAccess, analyticsController.getSummary);
 
 // GET /api/analytics/endpoints - Get API endpoint usage stats
 /**
@@ -83,7 +86,7 @@ router.get('/summary', authenticate, requireAdmin, analyticsController.getSummar
  *                         type: integer
  *                         example: 120
  */
-router.get('/endpoints', authenticate, requireAdmin, analyticsController.getEndpoints);
+router.get('/endpoints', authenticate, requireAnalyticsAccess, analyticsController.getEndpoints);
 
 // GET /api/analytics/status-codes - Get API request status code stats
 /**
@@ -114,7 +117,7 @@ router.get('/endpoints', authenticate, requireAdmin, analyticsController.getEndp
  *                     "400": 5
  *                     "401": 5
  */
-router.get('/status-codes', authenticate, requireAdmin, analyticsController.getStatusCodes);
+router.get('/status-codes', authenticate, requireAnalyticsAccess, analyticsController.getStatusCodes);
 
 // GET /api/analytics/daily - Get API request daily stats trend (last 30 days)
 /**
@@ -149,6 +152,6 @@ router.get('/status-codes', authenticate, requireAdmin, analyticsController.getS
  *                         type: integer
  *                         example: 12
  */
-router.get('/daily', authenticate, requireAdmin, analyticsController.getDaily);
+router.get('/daily', authenticate, requireAnalyticsAccess, analyticsController.getDaily);
 
 export default router;

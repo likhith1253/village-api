@@ -10,7 +10,8 @@ import {
   AlertCircle, 
   ShieldAlert, 
   Layers, 
-  UserCheck
+  UserCheck,
+  CreditCard
 } from 'lucide-react';
 
 export default function Settings() {
@@ -313,6 +314,66 @@ export default function Settings() {
         </Card>
         
       </div>
+
+      {/* Billing & Subscription Section */}
+      <Card className="p-6 mt-6">
+        <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider mb-5 flex items-center gap-1.5">
+          <CreditCard size={14} className="text-primary-400" />
+          <span>Subscription & Billing</span>
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+          {/* Plan Info */}
+          <div className="space-y-2">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Current Access Plan</div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-bold text-text-primary uppercase">{profile.plan}</span>
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[8px] font-extrabold uppercase tracking-widest ${
+                profile.plan === 'PRO' ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20' :
+                profile.plan === 'ENTERPRISE' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                'bg-zinc-500/10 text-text-secondary border border-zinc-500/20'
+              }`}>
+                {profile.subscriptionStatus || 'Active'}
+              </span>
+            </div>
+            <p className="text-[10.5px] text-text-secondary leading-relaxed font-semibold">
+              {profile.plan === 'PRO' ? '10,000 API requests daily quota' :
+               profile.plan === 'ENTERPRISE' ? 'Unlimited daily API requests quota' :
+               '100 API requests daily quota'}
+            </p>
+          </div>
+
+          {/* Renewal Date */}
+          <div className="space-y-2">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Billing Period End</div>
+            <div className="text-sm font-bold text-text-primary">
+              {profile.subscriptionEndDate 
+                ? new Date(profile.subscriptionEndDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+                : 'N/A (Free Account)'}
+            </div>
+            <p className="text-[10.5px] text-text-secondary leading-relaxed font-semibold">
+              {profile.plan === 'PRO' ? 'Subscription auto-renews monthly' : 'No credit card required for Free'}
+            </p>
+          </div>
+
+          {/* Billing Info & Actions */}
+          <div className="space-y-3 md:border-l border-border/40 md:pl-6">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Billing Invoices</div>
+            <p className="text-[10.5px] text-text-secondary leading-normal font-semibold">
+              Invoices are managed securely by Stripe. To request historic PDFs or billing modifications, contact support.
+            </p>
+            {profile.plan === 'FREE' ? (
+              <Button onClick={() => window.location.href = '/pricing'} className="w-full text-[10px] font-bold uppercase tracking-widest py-2">
+                Upgrade Plan
+              </Button>
+            ) : (
+              <Button onClick={() => window.location.href = '/pricing'} className="w-full text-[10px] font-bold uppercase tracking-widest py-2 bg-gradient-to-br from-background-card to-[#1c1c1e] hover:from-[#1c1c1e] hover:to-[#242426] border border-border text-text-primary">
+                Manage Subscription
+              </Button>
+            )}
+          </div>
+        </div>
+      </Card>
 
       {/* TOAST SYSTEM POPUPS */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">

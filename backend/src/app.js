@@ -18,6 +18,8 @@ import { rateLimiter } from './middlewares/rateLimiter.middleware.js';
 import helmet from 'helmet';
 import cors from 'cors';
 import userRoutes from './routes/user.routes.js';
+import billingRoutes from './routes/billing.routes.js';
+import { handleWebhook } from './controllers/billing.controller.js';
 
 const app = express();
 
@@ -26,6 +28,10 @@ app.use(helmet());
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*'
 }));
+
+// Stripe webhook raw parser (MUST be registered before express.json)
+app.post('/api/billing/webhook', express.raw({ type: 'application/json' }), handleWebhook);
+
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
@@ -94,6 +100,9 @@ app.use('/api/system', systemRoutes);
 
 console.log('Mounting route: /api/users');
 app.use('/api/users', userRoutes);
+
+console.log('Mounting route: /api/billing');
+app.use('/api/billing', billingRoutes);
 
 // Temporary Test API Key Route
 app.get('/api/test-key', authenticateApiKey, (req, res) => {

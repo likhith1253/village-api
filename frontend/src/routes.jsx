@@ -17,6 +17,8 @@ import Analytics from './pages/Analytics';
 import ApiExplorer from './pages/ApiExplorer';
 import Documentation from './pages/Documentation';
 import Settings from './pages/Settings';
+import Pricing from './pages/Pricing';
+import AdminDashboard from './pages/AdminDashboard';
 
 // Trust, Legal & Production Pages
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
@@ -41,6 +43,14 @@ const PublicRoute = ({ children }) => {
   return children;
 };
 
+const AdminRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role?.toUpperCase() !== 'ADMIN') return <Navigate to="/dashboard" replace />;
+  return children;
+};
+
 export const AppRoutes = () => {
   return (
     <Routes>
@@ -52,6 +62,7 @@ export const AppRoutes = () => {
 
       {/* Public Landing & Trust/Legal Pages */}
       <Route path="/" element={<Landing />} />
+      <Route path="/pricing" element={<Pricing />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="/cookies" element={<CookiePolicy />} />
@@ -68,6 +79,7 @@ export const AppRoutes = () => {
         <Route path="/api-explorer" element={<ApiExplorer />} />
         <Route path="/docs" element={<Documentation />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       </Route>
 
       {/* Custom 404 Route */}

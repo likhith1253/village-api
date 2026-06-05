@@ -27,7 +27,18 @@ export const rateLimiter = async (req, res, next) => {
       const token = req.headers.authorization.split(' ')[1];
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
+        const userDb = await prisma.user.findUnique({
+          where: { id: decoded.userId },
+          select: { id: true, email: true, role: true, plan: true, isActive: true }
+        });
+        if (userDb && userDb.isActive) {
+          req.user = {
+            userId: userDb.id,
+            email: userDb.email,
+            role: userDb.role,
+            plan: userDb.plan
+          };
+        }
       } catch (err) {
         // Ignore JWT verification issues; let the dedicated auth middleware handle 401
       }
@@ -43,7 +54,7 @@ export const rateLimiter = async (req, res, next) => {
     const plan = (user.plan || 'FREE').toUpperCase();
     const role = (user.role || 'USER').toUpperCase();
 
-    if (plan === 'ADMIN' || role === 'ADMIN') {
+    if (plan === 'ADMIN' || role === 'ADMIN' || plan === 'ENTERPRISE') {
       return next();
     }
 

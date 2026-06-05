@@ -5,7 +5,9 @@ import * as analyticsService from '../services/analytics.service.js';
  */
 export const getSummary = async (req, res, next) => {
   try {
-    const summary = await analyticsService.getAnalyticsSummary();
+    const isAdmin = req.user?.role === 'ADMIN';
+    const userId = isAdmin ? null : req.user?.userId;
+    const summary = await analyticsService.getAnalyticsSummary(userId);
 
     return res.status(200).json({
       success: true,
@@ -21,7 +23,9 @@ export const getSummary = async (req, res, next) => {
  */
 export const getEndpoints = async (req, res, next) => {
   try {
-    const stats = await analyticsService.getEndpointStats();
+    const isAdmin = req.user?.role === 'ADMIN';
+    const userId = isAdmin ? null : req.user?.userId;
+    const stats = await analyticsService.getEndpointStats(userId);
 
     return res.status(200).json({
       success: true,
@@ -37,7 +41,9 @@ export const getEndpoints = async (req, res, next) => {
  */
 export const getStatusCodes = async (req, res, next) => {
   try {
-    const stats = await analyticsService.getStatusCodeStats();
+    const isAdmin = req.user?.role === 'ADMIN';
+    const userId = isAdmin ? null : req.user?.userId;
+    const stats = await analyticsService.getStatusCodeStats(userId);
 
     return res.status(200).json({
       success: true,
@@ -53,7 +59,9 @@ export const getStatusCodes = async (req, res, next) => {
  */
 export const getDaily = async (req, res, next) => {
   try {
-    const stats = await analyticsService.getDailyStats();
+    const isAdmin = req.user?.role === 'ADMIN';
+    const userId = isAdmin ? null : req.user?.userId;
+    const stats = await analyticsService.getDailyStats(userId);
 
     return res.status(200).json({
       success: true,
