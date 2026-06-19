@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 
 // Layouts
@@ -53,15 +53,6 @@ const AdminRoute = ({ children }) => {
 };
 
 export const AppRoutes = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const token = localStorage.getItem('census_token');
-    if (token) {
-      navigate('/dashboard');
-    }
-  }, []);
-
   return (
     <Routes>
       {/* Auth Paths */}

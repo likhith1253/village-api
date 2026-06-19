@@ -46,6 +46,41 @@ export default function Analytics() {
   const [isLocked, setIsLocked] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  const setPremiumMockData = () => {
+    setSummary({
+      totalRequests: 15240,
+      requestsToday: 842,
+      uniqueUsers: 24,
+      uniqueApiKeys: 18
+    });
+    setDaily([
+      { date: '2026-05-27', count: 1120 },
+      { date: '2026-05-28', count: 1250 },
+      { date: '2026-05-29', count: 1380 },
+      { date: '2026-05-30', count: 1420 },
+      { date: '2026-05-31', count: 1560 },
+      { date: '2026-06-01', count: 1640 },
+      { date: '2026-06-02', count: 1710 },
+      { date: '2026-06-03', count: 1820 },
+      { date: '2026-06-04', count: 1980 },
+      { date: '2026-06-05', count: 2120 }
+    ]);
+    setStatusCodes([
+      { name: 'HTTP 200', value: 14240, code: 200 },
+      { name: 'HTTP 400', value: 420, code: 400 },
+      { name: 'HTTP 401', value: 285, code: 401 },
+      { name: 'HTTP 429', value: 165, code: 429 },
+      { name: 'HTTP 500', value: 130, code: 500 }
+    ]);
+    setEndpoints([
+      { endpoint: '/api/v1/villages', count: 8150 },
+      { endpoint: '/api/v1/states', count: 2520 },
+      { endpoint: '/api/v1/districts', count: 2310 },
+      { endpoint: '/api/v1/keys', count: 2140 },
+      { endpoint: '/api/v1/search', count: 1120 }
+    ]);
+  };
+
   const fetchAnalyticsData = async (silent = false) => {
     if (!silent) {
       setLoading(true);
@@ -54,6 +89,16 @@ export default function Analytics() {
     }
     setError('');
     setIsLocked(false);
+
+    // Check if user is demo user - bypass API call
+    if (user?.isDemo) {
+      setPremiumMockData();
+      setLoading(false);
+      setIsRefreshing(false);
+      setIsLocked(false);
+      return;
+    }
+
     try {
       const [summaryRes, endpointsRes, statusCodesRes, dailyRes] = await Promise.all([
         apiClient.get('/api/analytics/summary'),
@@ -191,7 +236,7 @@ export default function Analytics() {
 
   // Handle global no data state
   const totalRequests = summary?.totalRequests || 0;
-  if (totalRequests === 0) {
+  if (totalRequests === 0 && !isLocked) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-6 select-none max-w-md mx-auto">
         <div className="h-14 w-14 rounded-2xl bg-zinc-900 border border-border flex items-center justify-center text-text-muted mb-5 shadow-lg">

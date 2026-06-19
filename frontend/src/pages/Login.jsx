@@ -14,7 +14,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { login } = useAuth();
+  const { login, loginAsDemo } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [successMessage, setSuccessMessage] = useState('');
@@ -43,6 +43,11 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDemoLogin = () => {
+    loginAsDemo();
+    navigate('/dashboard');
   };
 
   return (
@@ -125,6 +130,24 @@ export default function Login() {
               Sign In
             </Button>
           </form>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border/40"></div>
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="px-2 bg-background-card text-text-muted">or</span>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            onClick={handleDemoLogin}
+            className="w-full bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-white font-semibold"
+          >
+            <Zap size={16} className="mr-2" />
+            Instant Recruiter Demo (Pro)
+          </Button>
         </Card>
 
         {/* Footer */}
