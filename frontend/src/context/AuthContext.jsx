@@ -3,32 +3,9 @@ import apiClient from '../services/apiClient';
 
 const AuthContext = createContext(null);
 
-const DEMO_USER = {
-  id: 'demo-recruiter-999',
-  name: 'Demo Account (Premium)',
-  email: 'demo@censusgrid.com',
-  role: 'ADMIN',
-  plan: 'PRO',
-  isDemo: true,
-  subscriptionStatus: 'active',
-  subscriptionEndDate: '2099-12-31T23:59:59.000Z',
-  apiKeys: [
-    {
-      id: 'demo-key-id-123',
-      name: 'Default Demo Key',
-      key: 'vap_demo_xxxxxxxxxxxxxxxxxxxxxxxx',
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    }
-  ]
-};
-
 const getInitialState = () => {
   try {
     const token = localStorage.getItem('census_token');
-    if (token === 'demo_override_token') {
-      return { user: DEMO_USER, loading: false };
-    }
     // For real users, we need to verify the token with the backend
     if (token) {
       return { user: null, loading: true };
@@ -49,12 +26,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       const token = localStorage.getItem('census_token');
-      // If there's no token or it's a demo token, we've already handled it in getInitialState.
-      if (!token || token === 'demo_override_token') {
+      if (!token) {
+        setLoading(false);
         return;
       }
 
       try {
+        // The backend will validate the token and return the user
         const response = await apiClient.get('/api/users/me');
         setUser(response.data.data);
       } catch (err) {
@@ -66,7 +44,7 @@ export const AuthProvider = ({ children }) => {
       }
     };
     
-    // Only run auth check if we are in a loading state (i.e., for a real user with a token)
+    // Only run auth check if we are in a loading state (i.e., for a user with a token)
     if (loading) {
       checkAuthStatus();
     }
@@ -75,11 +53,6 @@ export const AuthProvider = ({ children }) => {
   const refreshUser = async () => {
     const token = localStorage.getItem('census_token');
     if (!token) return null;
-    // Check if this is a demo user bypass token
-    if (token === 'demo_override_token') {
-      setUser(DEMO_USER);
-      return DEMO_USER;
-    }
     try {
       const response = await apiClient.get('/api/users/me');
       setUser(response.data.data);
@@ -95,6 +68,7 @@ export const AuthProvider = ({ children }) => {
     const response = await apiClient.post('/api/auth/login', { email, password });
     const { token, user: userData } = response.data.data;
     localStorage.setItem('census_token', token);
+    apiClient.defaults.headers.Authorization = `Bearer ${token}`;
     setUser(userData);
     return userData;
   };
@@ -106,14 +80,24 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('census_token');
+    delete apiClient.defaults.headers.Authorization;
     setUser(null);
   };
 
-  const loginAsDemo = () => {
-    localStorage.setItem('census_token', 'demo_override_token');
-    localStorage.removeItem('tour_completed');
-    setUser(DEMO_USER);
-    return DEMO_USER;
+  const loginAsDemo = async () => {
+    try {
+      const response = await apiClient.post('/api/auth/demo-login');
+      const { token, user: demoUserData } = response.data.data;
+      localStorage.setItem('census_token', token);
+      apiClient.defaults.headers.Authorization = `Bearer ${token}`;
+      setUser(demoUserData);
+      return demoUserData;
+    } catch (error) {
+      console.error("Demo login failed:", error);
+      // Optional: handle demo login failure gracefully
+      logout();
+      throw error;
+    }
   };
 
   return (

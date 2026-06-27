@@ -19,6 +19,18 @@ export const authenticate = async (req, res, next) => {
     // Verify the JWT token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
+    // If it's a demo user, bypass database check and grant full access
+    if (decoded.isDemo) {
+      req.user = {
+        userId: decoded.userId,
+        email: decoded.email,
+        role: 'ADMIN',
+        plan: 'PRO',
+        isDemo: true,
+      };
+      return next();
+    }
+    
     // Fetch latest user details from DB to avoid stale JWT claims
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },

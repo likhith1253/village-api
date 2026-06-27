@@ -41,16 +41,24 @@ const createApiClient = () => {
     instance.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.response && error.response.status === 401) {
+        // Prevent redirect loops for demo users or during login attempts
+        const token = typeof window !== 'undefined' ? localStorage.getItem('census_token') : null;
+        const isDemoUser = token && (token.includes('demo') || token.startsWith('vap_demo'));
+
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          console.error('INTERCEPTOR KICK:', error.response);
+          // If it's a demo user or the request was to the login page, don't redirect
+          if (isDemoUser || error.config?.url?.includes('/login')) {
+            return Promise.reject(error);
+          }
+          
           try {
-            if (typeof window !== 'undefined' && window.localStorage) {
+            if (typeof window !== 'undefined') {
               localStorage.removeItem('census_token');
-            }
-            if (typeof window !== 'undefined' && window.location) {
               window.location.href = '/login';
             }
           } catch (err) {
-            console.error('Error handling 401 response:', err);
+            console.error('Error handling 401/403 response:', err);
           }
         }
         return Promise.reject(error);

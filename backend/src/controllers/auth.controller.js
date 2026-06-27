@@ -75,3 +75,32 @@ export const login = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Handles demo user login request.
+ */
+export const demoLogin = (req, res) => {
+  const demoUser = {
+    userId: 'demo-user-123',
+    email: 'demo@censusgrid.com',
+    role: 'ADMIN',
+    plan: 'PRO',
+    isDemo: true,
+  };
+
+  const token = jwt.sign(demoUser, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+  return successResponse(res, 'Demo login successful', {
+    token,
+    user: {
+      id: demoUser.userId,
+      name: 'Demo User',
+      email: demoUser.email,
+      role: demoUser.role,
+      plan: demoUser.plan,
+      isDemo: true,
+      subscriptionStatus: 'active',
+      subscriptionEndDate: new Date(Date.now() + 3600 * 1000).toISOString(),
+    },
+  }, 200);
+};
