@@ -3,18 +3,18 @@ import apiClient from '../services/apiClient';
 
 const AuthContext = createContext(null);
 
+const DEMO_USER = {
+  id: 'demo-recruiter-999',
+  name: 'Demo Account (Premium)',
+  email: 'demo@censusgrid.com',
+  role: 'USER',
+  plan: 'PRO',
+  isDemo: true
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const demoUserTemplate = {
-    id: 'demo-recruiter-999',
-    name: 'Demo Account (Premium)',
-    email: 'demo@censusgrid.com',
-    role: 'USER',
-    plan: 'PRO',
-    isDemo: true
-  };
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
       }
       // Check if this is a demo user bypass token
       if (token === 'demo_override_token') {
-        setUser(demoUserTemplate);
+        setUser(DEMO_USER);
         setLoading(false);
         return;
       }
@@ -46,8 +46,8 @@ export const AuthProvider = ({ children }) => {
     if (!token) return null;
     // Check if this is a demo user bypass token
     if (token === 'demo_override_token') {
-      setUser(demoUserTemplate);
-      return demoUserTemplate;
+      setUser(DEMO_USER);
+      return DEMO_USER;
     }
     try {
       const response = await apiClient.get('/api/users/me');
@@ -81,8 +81,8 @@ export const AuthProvider = ({ children }) => {
   const loginAsDemo = () => {
     localStorage.setItem('census_token', 'demo_override_token');
     localStorage.removeItem('tour_completed');
-    setUser(demoUserTemplate);
-    return demoUserTemplate;
+    setUser(DEMO_USER);
+    return DEMO_USER;
   };
 
   return (

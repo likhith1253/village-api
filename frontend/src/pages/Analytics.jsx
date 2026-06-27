@@ -15,7 +15,8 @@ import {
   Inbox,
   PieChart as PieIcon,
   BarChart2,
-  LineChart as LineIcon
+  LineChart as LineIcon,
+  Check
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -573,9 +574,18 @@ export default function Analytics() {
                   <span>Data Exports</span>
                 </div>
               </div>
-              <Button onClick={() => navigate('/pricing')} className="w-full text-xs font-bold uppercase tracking-wider">
-                Upgrade to Pro
-              </Button>
+              <div className="flex flex-col gap-3 w-full">
+                <Button onClick={() => navigate('/pricing')} className="w-full text-xs font-bold uppercase tracking-wider">
+                  Upgrade to Pro
+                </Button>
+                <Button 
+                  onClick={() => navigate('/dashboard')} 
+                  variant="outline" 
+                  className="w-full text-xs font-bold uppercase tracking-wider"
+                >
+                  Return to Dashboard
+                </Button>
+              </div>
             </div>
           </div>
         )}

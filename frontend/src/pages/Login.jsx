@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import Card from '../components/ui/card';
 import Input from '../components/ui/input';
 import Button from '../components/ui/button';
-import { Eye, EyeOff, AlertCircle, Check } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, Check, Zap } from 'lucide-react';
 import Logo from '../components/common/Logo';
 
 export default function Login() {

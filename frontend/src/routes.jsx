@@ -30,6 +30,9 @@ import Contact from './pages/legal/Contact';
 import NotFound from './pages/NotFound';
 import Maintenance from './pages/Maintenance';
 
+// Components
+import FeatureLocked from './components/common/FeatureLocked';
+
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return null;
@@ -49,6 +52,25 @@ const AdminRoute = ({ children }) => {
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
   if (user.role?.toUpperCase() !== 'ADMIN') return <Navigate to="/dashboard" replace />;
+  return children;
+};
+
+const LockedRoute = ({ children, featureName }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  
+  // Check if user has Pro plan or is demo user
+  const isPro = user.plan === 'PRO' || user.isDemo;
+  
+  if (!isPro) {
+    return (
+      <DashboardLayout>
+        <FeatureLocked featureName={featureName} />
+      </DashboardLayout>
+    );
+  }
+  
   return children;
 };
 
