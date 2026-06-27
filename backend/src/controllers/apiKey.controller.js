@@ -41,6 +41,7 @@ export const getKeys = async (req, res, next) => {
     const keys = await apiKeyService.getKeysByUser(userId);
     return successResponse(res, 'API keys retrieved successfully', keys, 200);
   } catch (error) {
+    console.error('API Key Fetch Error:', error);
     next(error);
   }
 };
