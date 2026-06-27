@@ -25,12 +25,28 @@ export default function Usage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchUsageData = async (silent = false) => {
+    if (!user) return; // Wait for user context
+
     if (!silent) {
       setLoading(true);
     } else {
       setIsRefreshing(true);
     }
     setError('');
+
+    // Handle demo user
+    if (user.isDemo) {
+      setUsage({
+        plan: 'PRO',
+        requestsToday: 1250,
+        dailyLimit: 5000,
+        remaining: 3750,
+      });
+      setLoading(false);
+      setIsRefreshing(false);
+      return;
+    }
+
     try {
       const res = await apiClient.get('/api/usage/me');
       setUsage(res.data.data);
@@ -46,7 +62,7 @@ export default function Usage() {
   useEffect(() => {
     document.title = 'Usage Statistics | CensusGrid';
     fetchUsageData();
-  }, []);
+  }, [user]);
 
   const CardSkeleton = () => (
     <div className="bg-gradient-to-br from-background-card to-[#121214] border border-border/80 rounded-xl p-6 h-36 animate-pulse flex flex-col justify-between shadow-lg">

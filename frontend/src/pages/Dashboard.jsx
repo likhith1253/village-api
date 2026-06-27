@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import Card from '../components/ui/card';
 import Button from '../components/ui/button';
+import { useAuth } from '../context/AuthContext';
 import { 
   Key, 
   BookOpen, 
@@ -28,6 +29,7 @@ const AdminRestrictedState = ({ title, description }) => (
 );
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [usage, setUsage] = useState(null);
   const [profile, setProfile] = useState(null);
   const [summary, setSummary] = useState(null);
@@ -40,9 +42,27 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   const fetchData = async () => {
+    if (!user) return; 
+
     setLoading(true);
     setError('');
     setAdminError(false);
+
+    if (user.isDemo) {
+      // Setup mock data for demo user
+      setProfile(user);
+      setUsage({
+        dailyLimit: 5000,
+        requestsToday: 1250,
+        remaining: 3750,
+      });
+      setSummary({ totalRequests: 25830 });
+      setAdminError(true); // Demo users are restricted from admin stats
+      setEndpoints([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       const [usageRes, profileRes] = await Promise.all([
         apiClient.get('/api/usage/me'),
@@ -63,7 +83,7 @@ export default function Dashboard() {
         if (adminErr.response?.status === 403) {
           setAdminError(true);
         } else {
-          throw adminErr;
+          // Don't throw; non-critical data
         }
       }
     } catch (err) {
@@ -77,7 +97,7 @@ export default function Dashboard() {
   useEffect(() => {
     document.title = 'Dashboard | CensusGrid';
     fetchData();
-  }, []);
+  }, [user]);
 
   const CardSkeleton = () => (
     <div className="bg-gradient-to-br from-background-card to-[#121214] border border-border/80 rounded-xl p-6 h-36 animate-pulse flex flex-col justify-between shadow-lg">

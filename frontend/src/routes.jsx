@@ -97,12 +97,16 @@ export const AppRoutes = () => {
       <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/api-keys" element={<ApiKeys />} />
-        <Route path="/usage" element={<Usage />} />
-        <Route path="/analytics" element={<Analytics />} />
         <Route path="/api-explorer" element={<ApiExplorer />} />
         <Route path="/docs" element={<Documentation />} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/payments" element={<Payments />} />
+        
+        {/* Pro Tier & Demo Accessible Routes */}
+        <Route path="/usage" element={<LockedRoute featureName="Usage Analytics"><Usage /></LockedRoute>} />
+        <Route path="/analytics" element={<LockedRoute featureName="Advanced Analytics"><Analytics /></LockedRoute>} />
+        <Route path="/payments" element={<LockedRoute featureName="Billing and Payments"><Payments /></LockedRoute>} />
+
+        {/* Admin only */}
         <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       </Route>
 

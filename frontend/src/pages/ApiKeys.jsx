@@ -3,6 +3,7 @@ import apiClient from '../services/apiClient';
 import Card from '../components/ui/card';
 import Input from '../components/ui/input';
 import Button from '../components/ui/button';
+import { useAuth } from '../context/AuthContext';
 import { 
   Key, 
   Copy, 
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 
 export default function ApiKeys() {
+  const { user } = useAuth();
   const [keys, setKeys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -32,12 +34,11 @@ export default function ApiKeys() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const [newKeyName, setNewKeyName] = useState('');
-  const [createdKeyData, setCreatedKeyData] = useState(null); // Holds raw generated key on success
+  const [createdKeyData, setCreatedKeyData] = useState(null);
 
-  const [selectedKey, setSelectedKey] = useState(null); // Selected for rename/delete
+  const [selectedKey, setSelectedKey] = useState(null);
   const [renameValue, setRenameValue] = useState('');
-
-  // Copy tracking state
+  
   const [copiedKeyId, setCopiedKeyId] = useState(null);
 
   const showToast = (message, type = 'success') => {
@@ -49,8 +50,16 @@ export default function ApiKeys() {
   };
 
   const fetchKeys = async () => {
+    if (!user) return;
     setLoading(true);
     setError('');
+
+    if (user.isDemo) {
+      setKeys(user.apiKeys || []);
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await apiClient.get('/api/keys');
       setKeys(response.data.data || []);
@@ -65,18 +74,23 @@ export default function ApiKeys() {
 
   useEffect(() => {
     document.title = 'API Keys | CensusGrid';
-    fetchKeys();
-  }, []);
+    if (user) {
+      fetchKeys();
+    }
+  }, [user]);
 
   const handleCreateKey = async (e) => {
     e.preventDefault();
-    if (!newKeyName.trim()) return;
+    if (!newKeyName.trim() || user.isDemo) {
+      if (user.isDemo) showToast("This feature is disabled in demo mode.", "error");
+      return;
+    }
 
     try {
       const response = await apiClient.post('/api/keys', { name: newKeyName });
       const createdKey = response.data.data;
       setKeys((prev) => [createdKey, ...prev]);
-      setCreatedKeyData(createdKey); // Save full key to show once
+      setCreatedKeyData(createdKey);
       setNewKeyName('');
       showToast('API Key created successfully');
     } catch (err) {
@@ -87,7 +101,10 @@ export default function ApiKeys() {
 
   const handleRenameKey = async (e) => {
     e.preventDefault();
-    if (!renameValue.trim() || !selectedKey) return;
+    if (!renameValue.trim() || !selectedKey || user.isDemo) {
+       if (user.isDemo) showToast("This feature is disabled in demo mode.", "error");
+      return;
+    }
 
     try {
       const response = await apiClient.patch(`/api/keys/${selectedKey.id}`, { name: renameValue });
@@ -104,6 +121,10 @@ export default function ApiKeys() {
   };
 
   const handleToggleStatus = async (keyItem) => {
+    if (user.isDemo) {
+      showToast("This feature is disabled in demo mode.", "error");
+      return;
+    }
     const nextStatus = !keyItem.isActive;
     try {
       await apiClient.patch(`/api/keys/${keyItem.id}`, { isActive: nextStatus });
@@ -116,7 +137,13 @@ export default function ApiKeys() {
   };
 
   const handleDeleteKey = async () => {
-    if (!selectedKey) return;
+    if (!selectedKey || user.isDemo) {
+      if (user.isDemo) {
+        showToast("This feature is disabled in demo mode.", "error");
+        setIsDeleteOpen(false);
+      }
+      return;
+    }
     try {
       await apiClient.delete(`/api/keys/${selectedKey.id}`);
       setKeys((prev) => prev.filter((k) => k.id !== selectedKey.id));
@@ -139,6 +166,7 @@ export default function ApiKeys() {
   // Mask string helper
   const maskKeyString = (rawKey) => {
     if (!rawKey) return '';
+    if (user?.isDemo) return 'vap_demo_••••••••••••••••••••••••';
     if (rawKey.length <= 8) return '••••••••';
     const prefix = rawKey.substring(0, 4); // "vap_"
     const suffix = rawKey.substring(rawKey.length - 4);
@@ -162,10 +190,14 @@ export default function ApiKeys() {
         </div>
         <button 
           onClick={() => {
+            if (user?.isDemo) {
+              showToast("This feature is disabled in demo mode.", "error");
+              return;
+            }
             setCreatedKeyData(null);
             setIsCreateOpen(true);
           }} 
-          className="flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 active:scale-[0.98] hover:-translate-y-[0.5px] rounded-lg shadow-md hover:shadow-primary-500/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 shrink-0 select-none"
+          className={`flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 active:scale-[0.98] hover:-translate-y-[0.5px] rounded-lg shadow-md hover:shadow-primary-500/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 shrink-0 select-none ${user?.isDemo ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <Plus size={14} />
           <span>Create API Key</span>
@@ -187,7 +219,7 @@ export default function ApiKeys() {
       </div>
 
       {/* Main Content Area */}
-      {loading ? (
+      {loading && !user ? (
         <Card className="p-6 animate-pulse space-y-6 shadow-lg border border-border/80">
           <div className="h-4 bg-border rounded w-1/5"></div>
           <div className="space-y-4">
@@ -226,8 +258,14 @@ export default function ApiKeys() {
           </p>
           {!searchQuery && (
             <button
-              onClick={() => setIsCreateOpen(true)}
-              className="mt-5 flex items-center justify-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 active:scale-[0.98] rounded-lg shadow-md transition-all duration-200 focus:outline-none"
+              onClick={() => {
+                if(user?.isDemo) {
+                  showToast("This feature is disabled in demo mode.", "error");
+                  return;
+                }
+                setIsCreateOpen(true)
+              }}
+              className={`mt-5 flex items-center justify-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 active:scale-[0.98] rounded-lg shadow-md transition-all duration-200 focus:outline-none ${user?.isDemo ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               Generate Key
             </button>
@@ -259,7 +297,7 @@ export default function ApiKeys() {
                       onClick={() => handleToggleStatus(keyItem)}
                       className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                         keyItem.isActive ? 'bg-primary-500' : 'bg-zinc-700'
-                      }`}
+                      } ${user?.isDemo ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <span
                         className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
@@ -290,11 +328,15 @@ export default function ApiKeys() {
                       {/* Rename Button */}
                       <button
                         onClick={() => {
+                          if (user?.isDemo) {
+                            showToast("This feature is disabled in demo mode.", "error");
+                            return;
+                          }
                           setSelectedKey(keyItem);
                           setRenameValue(keyItem.name);
                           setIsRenameOpen(true);
                         }}
-                        className="p-1.5 rounded bg-background hover:bg-background-popover border border-border/80 text-text-secondary hover:text-text-primary transition-all duration-200"
+                        className={`p-1.5 rounded bg-background hover:bg-background-popover border border-border/80 text-text-secondary hover:text-text-primary transition-all duration-200 ${user?.isDemo ? 'opacity-50 cursor-not-allowed' : ''}`}
                         title="Rename Key"
                       >
                         <Edit2 size={13} />
@@ -303,10 +345,14 @@ export default function ApiKeys() {
                       {/* Delete Button */}
                       <button
                         onClick={() => {
+                          if (user?.isDemo) {
+                            showToast("This feature is disabled in demo mode.", "error");
+                            return;
+                          }
                           setSelectedKey(keyItem);
                           setIsDeleteOpen(true);
                         }}
-                        className="p-1.5 rounded bg-background hover:bg-red-500/5 border border-border/80 hover:border-red-500/20 text-text-secondary hover:text-red-400 transition-all duration-200"
+                        className={`p-1.5 rounded bg-background hover:bg-red-500/5 border border-border/80 hover:border-red-500/20 text-text-secondary hover:text-red-400 transition-all duration-200 ${user?.isDemo ? 'opacity-50 cursor-not-allowed' : ''}`}
                         title="Revoke Key"
                       >
                         <Trash2 size={13} />

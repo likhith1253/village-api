@@ -9,7 +9,16 @@ const DEMO_USER = {
   email: 'demo@censusgrid.com',
   role: 'USER',
   plan: 'PRO',
-  isDemo: true
+  isDemo: true,
+  apiKeys: [
+    {
+      id: 'demo-key-id-123',
+      name: 'Default Demo Key',
+      key: 'vap_demo_xxxxxxxxxxxxxxxxxxxxxxxx',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+    }
+  ]
 };
 
 export const AuthProvider = ({ children }) => {
