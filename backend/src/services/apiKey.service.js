@@ -26,13 +26,13 @@ export const getApiKeyWithUser = async (key) => {
 export const getKeysByUser = async (userId) => {
   return await prisma.apiKey.findMany({
     where: { userId },
-    select: {
-      id: true,
-      key: true,
-      name: true,
-      isActive: true,
-      createdAt: true
-    }
+    include: {
+      _count: {
+        select: {
+          apiLogs: true,
+        },
+      },
+    },
   });
 };
 
