@@ -23,34 +23,54 @@ const DEMO_USER = {
   ]
 };
 
+const getInitialState = () => {
+  try {
+    const token = localStorage.getItem('census_token');
+    if (token === 'demo_override_token') {
+      return { user: DEMO_USER, loading: false };
+    }
+    // For real users, we need to verify the token with the backend
+    if (token) {
+      return { user: null, loading: true };
+    }
+    // No token, not loading
+    return { user: null, loading: false };
+  } catch (error) {
+    console.error("Failed to get initial auth state from localStorage", error);
+    return { user: null, loading: false };
+  }
+};
+
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const initialState = getInitialState();
+  const [user, setUser] = useState(initialState.user);
+  const [loading, setLoading] = useState(initialState.loading);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
       const token = localStorage.getItem('census_token');
-      if (!token) {
-        setLoading(false);
+      // If there's no token or it's a demo token, we've already handled it in getInitialState.
+      if (!token || token === 'demo_override_token') {
         return;
       }
-      // Check if this is a demo user bypass token
-      if (token === 'demo_override_token') {
-        setUser(DEMO_USER);
-        setLoading(false);
-        return;
-      }
+
       try {
         const response = await apiClient.get('/api/users/me');
         setUser(response.data.data);
       } catch (err) {
+        // This can happen if the token is invalid/expired
         localStorage.removeItem('census_token');
+        setUser(null);
       } finally {
         setLoading(false);
       }
     };
-    checkAuthStatus();
-  }, []);
+    
+    // Only run auth check if we are in a loading state (i.e., for a real user with a token)
+    if (loading) {
+      checkAuthStatus();
+    }
+  }, [loading]);
 
   const refreshUser = async () => {
     const token = localStorage.getItem('census_token');
