@@ -22,13 +22,13 @@ export const authenticate = async (req, res, next) => {
     // If it's a demo user, bypass database check and grant full access
     if (decoded.isDemo) {
       req.user = {
-        userId: decoded.userId,
-        email: decoded.email,
-        role: 'ADMIN',
-        isAdmin: true, // Add isAdmin to satisfy downstream permission checks
-        plan: 'PRO',
-        isDemo: true,
-      };
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      plan: user.plan,
+      isAdmin: user.role === 'ADMIN', // Add isAdmin property
+      isDemo: false, // Explicitly set isDemo to false
+    };
       return next();
     }
     

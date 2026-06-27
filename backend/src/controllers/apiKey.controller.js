@@ -41,19 +41,19 @@ export const getKeys = async (req, res, next) => {
 
     // For demo users, return a mock API key to prevent DB errors
     if (isDemo) {
-      const mockKey = {
-        id: 1,
-        key: `vap_demo_${'x'.repeat(24)}`,
+      const mockKey = [{
+        id: 'demo-key',
+        key: `vap_demo_${'x'.repeat(20)}`,
         name: 'Demonstration Key',
-        userId: userId,
+        userId: 'demo-user-123',
         isActive: true,
-        createdAt: new Date('2023-01-01T12:00:00.000Z'),
-        updatedAt: new Date('2023-01-01T12:00:00.000Z'),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         _count: {
-          apiLogs: 42,
+          apiLogs: 1,
         },
-      };
-      return successResponse(res, 'API keys retrieved successfully', [mockKey], 200);
+      }];
+      return successResponse(res, 'API keys retrieved successfully', mockKey, 200);
     }
 
     const keys = await apiKeyService.getKeysByUser(userId);

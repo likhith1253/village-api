@@ -48,8 +48,7 @@ const createApiClient = () => {
           console.error("[API Interceptor] Auth failure caught:", error.response.status, originalRequest.url);
           
           // If it is a demo user session, do not force a hard login redirect; bubble the error to the view layer
-          const isDemo = localStorage.getItem('isDemoUser') === 'true' || JSON.parse(localStorage.getItem('user') || '{}').isDemo;
-          if (isDemo) {
+          const isDemo = localStorage.getItem('isDemoUser') === 'true' || JSON.parse(localStorage.getItem('user') || '{}').isDemo;            if (isDemo) {
             console.warn("[API Interceptor] Demo user session context retained. Bypassing forced redirection.");
             return Promise.reject(error);
           }

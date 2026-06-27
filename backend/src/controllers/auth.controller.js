@@ -83,8 +83,8 @@ export const demoLogin = (req, res) => {
   const demoUser = {
     userId: 'demo-user-123',
     email: 'demo@censusgrid.com',
-    role: 'ADMIN',
-    plan: 'PRO',
+    role: 'admin',
+    plan: 'unlimited',
     isDemo: true,
   };
 

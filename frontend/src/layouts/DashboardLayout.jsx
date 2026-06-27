@@ -14,17 +14,17 @@ const ProductTour = ({ onClose }) => {
       path: '/dashboard'
     },
     {
-      title: 'Advanced Analytics',
+      title: 'Analytics',
       content: 'Dive deep into your API usage metrics, request trends, and performance data.',
       path: '/analytics'
     },
     {
-      title: 'API Key Management',
+      title: 'API Keys',
       content: 'Create, revoke, and manage your API keys to ensure secure integration.',
       path: '/api-keys'
     },
     {
-      title: 'Interactive API Explorer',
+      title: 'API Explorer',
       content: 'Test endpoints, view live responses, and explore the API capabilities directly from the browser.',
       path: '/api-explorer'
     },
@@ -117,7 +117,7 @@ export default function DashboardLayout() {
   useEffect(() => {
     const token = localStorage.getItem('census_token');
     const tourCompleted = localStorage.getItem('tour_completed');
-    if (token === 'demo_override_token' && !tourCompleted) {
+    if (localStorage.getItem('isDemoUser') === 'true' && !tourCompleted) {
       setShowTour(true);
     }
   }, []);
