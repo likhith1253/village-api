@@ -7,9 +7,11 @@ const DEMO_USER = {
   id: 'demo-recruiter-999',
   name: 'Demo Account (Premium)',
   email: 'demo@censusgrid.com',
-  role: 'USER',
+  role: 'ADMIN',
   plan: 'PRO',
   isDemo: true,
+  subscriptionStatus: 'active',
+  subscriptionEndDate: '2099-12-31T23:59:59.000Z',
   apiKeys: [
     {
       id: 'demo-key-id-123',
