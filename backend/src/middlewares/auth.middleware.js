@@ -25,6 +25,7 @@ export const authenticate = async (req, res, next) => {
         userId: decoded.userId,
         email: decoded.email,
         role: 'ADMIN',
+        isAdmin: true, // Add isAdmin to satisfy downstream permission checks
         plan: 'PRO',
         isDemo: true,
       };

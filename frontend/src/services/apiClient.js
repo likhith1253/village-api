@@ -41,24 +41,24 @@ const createApiClient = () => {
     instance.interceptors.response.use(
       (response) => response,
       (error) => {
-        // Prevent redirect loops for demo users or during login attempts
-        const token = typeof window !== 'undefined' ? localStorage.getItem('census_token') : null;
-        const isDemoUser = token && (token.includes('demo') || token.startsWith('vap_demo'));
-
-        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-          console.error('INTERCEPTOR KICK:', error.response);
-          // If it's a demo user or the request was to the login page, don't redirect
-          if (isDemoUser || error.config?.url?.includes('/login')) {
+        const originalRequest = error.config;
+        
+        // Check if the failure belongs to an authorized route or requires interception
+        if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
+          console.error("[API Interceptor] Auth failure caught:", error.response.status, originalRequest.url);
+          
+          // If it is a demo user session, do not force a hard login redirect; bubble the error to the view layer
+          const isDemo = localStorage.getItem('isDemoUser') === 'true' || JSON.parse(localStorage.getItem('user') || '{}').isDemo;
+          if (isDemo) {
+            console.warn("[API Interceptor] Demo user session context retained. Bypassing forced redirection.");
             return Promise.reject(error);
           }
           
-          try {
-            if (typeof window !== 'undefined') {
-              localStorage.removeItem('census_token');
-              window.location.href = '/login';
-            }
-          } catch (err) {
-            console.error('Error handling 401/403 response:', err);
+          // Standard fallback redirection for expired authentications
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login?expired=true';
           }
         }
         return Promise.reject(error);

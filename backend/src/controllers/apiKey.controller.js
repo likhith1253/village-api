@@ -33,9 +33,27 @@ export const createKey = async (req, res, next) => {
 
 export const getKeys = async (req, res, next) => {
   try {
-    const userId = req.user?.userId;
+    const { userId, isDemo } = req.user;
+
     if (!userId) {
       return errorResponse(res, 'Unauthorized access', 401);
+    }
+
+    // For demo users, return a mock API key to prevent DB errors
+    if (isDemo) {
+      const mockKey = {
+        id: 1,
+        key: `vap_demo_${'x'.repeat(24)}`,
+        name: 'Demonstration Key',
+        userId: userId,
+        isActive: true,
+        createdAt: new Date('2023-01-01T12:00:00.000Z'),
+        updatedAt: new Date('2023-01-01T12:00:00.000Z'),
+        _count: {
+          apiLogs: 42,
+        },
+      };
+      return successResponse(res, 'API keys retrieved successfully', [mockKey], 200);
     }
 
     const keys = await apiKeyService.getKeysByUser(userId);
