@@ -24,6 +24,10 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(initialState.loading);
 
   useEffect(() => {
+    console.log('[DIAGNOSTIC - AUTH STATE CHANGE]', user);
+  }, [user]);
+
+  useEffect(() => {
     const checkAuthStatus = async () => {
       const token = localStorage.getItem('census_token');
       if (!token) {
