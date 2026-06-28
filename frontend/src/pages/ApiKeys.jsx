@@ -54,12 +54,6 @@ export default function ApiKeys() {
     setLoading(true);
     setError('');
 
-    if (user.isDemo) {
-      setKeys(user.apiKeys || []);
-      setLoading(false);
-      return;
-    }
-
     try {
       const response = await apiClient.get('/api/keys');
       setKeys(response.data.data || []);
@@ -81,8 +75,7 @@ export default function ApiKeys() {
 
   const handleCreateKey = async (e) => {
     e.preventDefault();
-    if (!newKeyName.trim() || user.isDemo) {
-      if (user.isDemo) showToast("This feature is disabled in demo mode.", "error");
+    if (!newKeyName.trim()) {
       return;
     }
 
@@ -92,7 +85,11 @@ export default function ApiKeys() {
       setKeys((prev) => [createdKey, ...prev]);
       setCreatedKeyData(createdKey);
       setNewKeyName('');
-      showToast('API Key created successfully');
+      if (user.isDemo) {
+        showToast('API Key created successfully. Demo keys are limited to 10 API requests.', 'success');
+      } else {
+        showToast('API Key created successfully');
+      }
     } catch (err) {
       console.error(err);
       showToast(err.response?.data?.message || 'Failed to create API key', 'error');
@@ -101,8 +98,7 @@ export default function ApiKeys() {
 
   const handleRenameKey = async (e) => {
     e.preventDefault();
-    if (!renameValue.trim() || !selectedKey || user.isDemo) {
-       if (user.isDemo) showToast("This feature is disabled in demo mode.", "error");
+    if (!renameValue.trim() || !selectedKey) {
       return;
     }
 
@@ -121,10 +117,6 @@ export default function ApiKeys() {
   };
 
   const handleToggleStatus = async (keyItem) => {
-    if (user.isDemo) {
-      showToast("This feature is disabled in demo mode.", "error");
-      return;
-    }
     const nextStatus = !keyItem.isActive;
     try {
       await apiClient.patch(`/api/keys/${keyItem.id}`, { isActive: nextStatus });
@@ -137,11 +129,7 @@ export default function ApiKeys() {
   };
 
   const handleDeleteKey = async () => {
-    if (!selectedKey || user.isDemo) {
-      if (user.isDemo) {
-        showToast("This feature is disabled in demo mode.", "error");
-        setIsDeleteOpen(false);
-      }
+    if (!selectedKey) {
       return;
     }
     try {
@@ -180,6 +168,19 @@ export default function ApiKeys() {
 
   return (
     <div className="space-y-6 select-none font-sans pb-6 relative">
+      {/* Demo User Warning Banner */}
+      {user?.isDemo && (
+        <div className="bg-amber-950/20 border border-amber-500/30 rounded-lg p-4 flex items-start gap-3">
+          <AlertTriangle size={18} className="text-amber-500 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">Demo Mode Limitation</h4>
+            <p className="text-[11px] text-amber-300/90 leading-relaxed">
+              Demo users are limited to <strong>10 API requests</strong> per API key. This is a restriction for demonstration purposes only. Upgrade to a paid plan for unlimited API access.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Title Header */}
       <div className="flex flex-row items-center justify-between gap-4">
         <div>
@@ -188,16 +189,12 @@ export default function ApiKeys() {
             Generate and manage secure credentials for querying CensusGrid services.
           </p>
         </div>
-        <button 
+        <button
           onClick={() => {
-            if (user?.isDemo) {
-              showToast("This feature is disabled in demo mode.", "error");
-              return;
-            }
             setCreatedKeyData(null);
             setIsCreateOpen(true);
-          }} 
-          className={`flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 active:scale-[0.98] hover:-translate-y-[0.5px] rounded-lg shadow-md hover:shadow-primary-500/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 shrink-0 select-none ${user?.isDemo ? 'opacity-50 cursor-not-allowed' : ''}`}
+          }}
+          className="flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 active:scale-[0.98] hover:-translate-y-[0.5px] rounded-lg shadow-md hover:shadow-primary-500/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 shrink-0 select-none"
         >
           <Plus size={14} />
           <span>Create API Key</span>
@@ -297,7 +294,7 @@ export default function ApiKeys() {
                       onClick={() => handleToggleStatus(keyItem)}
                       className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                         keyItem.isActive ? 'bg-primary-500' : 'bg-zinc-700'
-                      } ${user?.isDemo ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      }`}
                     >
                       <span
                         className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${

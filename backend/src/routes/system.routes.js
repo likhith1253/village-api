@@ -6,6 +6,7 @@ import { errorResponse } from '../utils/apiError.js';
 const router = express.Router();
 
 const requireAdmin = (req, res, next) => {
+  // Allow demo users with ADMIN role to access admin routes
   if (req.user?.role !== 'ADMIN') {
     return errorResponse(res, 'Forbidden: Admin access required', 403);
   }

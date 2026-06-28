@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import apiClient from '../services/apiClient';
 import Card from '../components/ui/card';
 import Button from '../components/ui/button';
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 
 export default function AdminDashboard() {
+  const location = useLocation();
   const [stats, setStats] = useState(null);
   const [sysInfo, setSysInfo] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -52,6 +54,11 @@ export default function AdminDashboard() {
     document.title = 'Operator Console | CensusGrid';
     fetchAdminData();
   }, []);
+
+  // Re-fetch data when location changes (e.g., back button navigation)
+  useEffect(() => {
+    fetchAdminData();
+  }, [location.pathname]);
 
   const formatUptime = (seconds) => {
     if (!seconds) return '0s';
