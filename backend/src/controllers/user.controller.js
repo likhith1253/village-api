@@ -5,8 +5,28 @@ import { errorResponse } from '../utils/apiError.js';
 export const getProfile = async (req, res, next) => {
   try {
     const userId = req.user?.userId;
+    const isDemo = req.user?.isDemo;
+
     if (!userId) {
       return errorResponse(res, 'Unauthorized access', 401);
+    }
+
+    // For demo users, return mock profile without DB lookup
+    if (isDemo) {
+      const demoProfile = {
+        id: userId,
+        name: 'Demo User',
+        email: req.user.email,
+        role: req.user.role,
+        plan: req.user.plan,
+        createdAt: new Date().toISOString(),
+        stripeCustomerId: null,
+        subscriptionStatus: 'active',
+        subscriptionEndDate: new Date(Date.now() + 3600 * 1000).toISOString(),
+        isDemo: true
+      };
+      console.log('[DIAGNOSTIC - DEMO PROFILE RETURNED]', demoProfile);
+      return successResponse(res, 'User profile retrieved successfully', demoProfile, 200);
     }
 
     const profile = await userService.getUserProfile(userId);

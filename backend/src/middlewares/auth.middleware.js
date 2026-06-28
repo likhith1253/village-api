@@ -26,13 +26,14 @@ export const authenticate = async (req, res, next) => {
     // If it's a demo user, bypass database check and grant full access
     if (decoded.isDemo) {
       req.user = {
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-      plan: user.plan,
-      isAdmin: user.role === 'ADMIN', // Add isAdmin property
-      isDemo: false, // Explicitly set isDemo to false
-    };
+        userId: decoded.userId,
+        email: decoded.email,
+        role: decoded.role || 'USER',
+        plan: decoded.plan || 'FREE',
+        isAdmin: decoded.role === 'ADMIN',
+        isDemo: true,
+      };
+      console.log('[DIAGNOSTIC - BACKEND DEMO USER AUTHENTICATED]', req.user);
       return next();
     }
 

@@ -23,6 +23,7 @@ const createApiClient = () => {
         try {
           if (typeof window !== 'undefined' && window.localStorage) {
             const token = localStorage.getItem('census_token');
+            console.log('[DIAGNOSTIC - REQUEST INTERCEPTOR]', { url: config.url, hasToken: !!token, tokenPreview: token ? `${token.substring(0, 20)}...` : 'none' });
             if (token) {
               config.headers.Authorization = `Bearer ${token}`;
             }
