@@ -13,6 +13,23 @@ export const getUsage = async (req, res, next) => {
       });
     }
 
+    // For demo users, return mock data without DB queries
+    if (user.isDemo) {
+      console.log('[DIAGNOSTIC - DEMO USAGE RETURNED]');
+      return res.status(200).json({
+        success: true,
+        data: {
+          totalRequests: 45231,
+          requestsToday: 1234,
+          requestsThisMonth: 8934,
+          limit: 10000,
+          limitType: 'daily',
+          remaining: 8766,
+          resetDate: new Date(Date.now() + 86400000).toISOString()
+        }
+      });
+    }
+
     const userId = user.id || user.userId;
     const plan = (user.plan || 'FREE').toUpperCase();
 
