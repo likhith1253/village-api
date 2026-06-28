@@ -5,6 +5,7 @@ import redis from '../config/redis.js';
  * Controller to handle fetching system info.
  */
 export const getSystemInfo = (req, res) => {
+  console.log('[DIAGNOSTIC - SYSTEM INFO REQUEST]', { isDemo: req.user?.isDemo });
   return res.status(200).json({
     success: true,
     data: {
@@ -20,6 +21,25 @@ export const getSystemInfo = (req, res) => {
  */
 export const getAdminDashboard = async (req, res, next) => {
   try {
+    // For demo users, return mock data without DB queries
+    if (req.user?.isDemo) {
+      console.log('[DIAGNOSTIC - DEMO ADMIN DASHBOARD RETURNED]');
+      return res.status(200).json({
+        success: true,
+        data: {
+          totalUsers: 1247,
+          activeSubscriptions: 89,
+          proUsersCount: 67,
+          networkTraffic: 45231,
+          estimatedRevenue: 3283,
+          health: {
+            database: 'healthy',
+            redis: 'healthy'
+          }
+        }
+      });
+    }
+
     const [totalUsers, activeSubs, proUsersCount, networkTraffic] = await Promise.all([
       prisma.user.count(),
       prisma.user.count({
