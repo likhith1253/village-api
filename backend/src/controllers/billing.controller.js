@@ -8,6 +8,17 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'mock_key');
  */
 export const createCheckoutSession = async (req, res, next) => {
   try {
+    // For demo users, return a mock checkout URL
+    if (req.user?.isDemo) {
+      console.log('[DIAGNOSTIC - DEMO CHECKOUT SESSION RETURNED]');
+      return res.status(200).json({
+        success: true,
+        data: {
+          checkoutUrl: 'https://stripe.com/checkout/demo'
+        }
+      });
+    }
+
     const userId = req.user?.userId;
     if (!userId) {
       return res.status(401).json({ success: false, message: 'Unauthorized access' });
