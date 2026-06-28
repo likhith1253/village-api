@@ -46,23 +46,21 @@ const createApiClient = () => {
 
         // Check if the failure belongs to an authorized route or requires interception
         if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
-          // console.error("[API Interceptor] Auth failure caught:", error.response.status, originalRequest.url);
+          console.error('[DIAGNOSTIC - INTERCEPTOR KICK]', { status: error.response?.status, url: error.config?.url, headers: error.config?.headers });
 
           // If it is a demo user session, do not force a hard login redirect; bubble the error to the view layer
-          // const isDemo = localStorage.getItem('isDemoUser') === 'true' || JSON.parse(localStorage.getItem('user') || '{}').isDemo;
-          // if (isDemo) {
-          //   console.warn("[API Interceptor] Demo user session context retained. Bypassing forced redirection.");
-          //   return Promise.reject(error);
-          // }
+          const isDemo = localStorage.getItem('census_token') && JSON.parse(localStorage.getItem('user') || '{}').isDemo;
+          if (isDemo) {
+            console.warn("[API Interceptor] Demo user session context retained. Bypassing forced redirection.");
+            return Promise.reject(error);
+          }
 
-          // Standard fallback redirection for expired authentications - DISABLED FOR DIAGNOSTICS
-          // localStorage.removeItem('token');
-          // localStorage.removeItem('user');
-          // if (window.location.pathname !== '/login') {
-          //   window.location.href = '/login?expired=true';
-          // }
-
-          console.error('[DIAGNOSTIC - INTERCEPTOR KICK]', { status: error.response?.status, url: error.config?.url, headers: error.config?.headers });
+          // Standard fallback redirection for expired authentications
+          localStorage.removeItem('census_token');
+          localStorage.removeItem('user');
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login?expired=true';
+          }
         }
         return Promise.reject(error);
       }
