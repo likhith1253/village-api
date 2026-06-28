@@ -13,14 +13,15 @@ import {
   LogOut,
   X,
   CreditCard,
-  ShieldAlert
+  Server,
+  Github
 } from 'lucide-react';
 
 export default function Sidebar({ onClose, isMobile = false }) {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
 
-  const docsUrl = import.meta.env.VITE_API_URL 
+  const docsUrl = import.meta.env.VITE_API_URL
     ? `${import.meta.env.VITE_API_URL.replace(/\/api$/, '')}/api-docs`
     : 'http://localhost:3000/api-docs';
 
@@ -33,11 +34,8 @@ export default function Sidebar({ onClose, isMobile = false }) {
     { name: 'Documentation', path: docsUrl, icon: BookOpen, isExternal: true },
     { name: 'Payments', path: '/payments', icon: CreditCard },
     { name: 'Settings', path: '/settings', icon: Settings },
+    { name: 'System Status', path: '/system-status', icon: Server },
   ];
-
-  if (user?.role?.toUpperCase() === 'ADMIN') {
-    menuItems.splice(1, 0, { name: 'Admin Panel', path: '/admin', icon: ShieldAlert });
-  }
 
   const handleLogout = () => {
     logout();
@@ -98,6 +96,20 @@ export default function Sidebar({ onClose, isMobile = false }) {
           );
         })}
       </nav>
+
+      {/* GitHub Link */}
+      <div className="px-4 pb-2">
+        <a
+          href="https://github.com/likhith1253/village-api"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={onClose}
+          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border-l-2 text-text-secondary border-transparent hover:text-text-primary hover:bg-background-popover/30"
+        >
+          <Github size={18} className="shrink-0" />
+          <span>GitHub Repository</span>
+        </a>
+      </div>
 
       {/* Logout Footer Section */}
       <div className="p-4 border-t border-border/80 shrink-0">

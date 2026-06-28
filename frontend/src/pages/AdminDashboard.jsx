@@ -4,12 +4,8 @@ import apiClient from '../services/apiClient';
 import Card from '../components/ui/card';
 import Button from '../components/ui/button';
 import {
-  Users,
-  CreditCard,
-  Activity,
   Database,
   Server,
-  TrendingUp,
   HardDrive,
   RefreshCw,
   Clock,
@@ -20,13 +16,12 @@ import {
 
 export default function AdminDashboard() {
   const location = useLocation();
-  const [stats, setStats] = useState(null);
   const [sysInfo, setSysInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const fetchAdminData = async (silent = false) => {
+  const fetchSystemData = async (silent = false) => {
     if (!silent) {
       setLoading(true);
     } else {
@@ -34,16 +29,11 @@ export default function AdminDashboard() {
     }
     setError('');
     try {
-      const [statsRes, sysInfoRes] = await Promise.all([
-        apiClient.get('/api/system/admin/dashboard'),
-        apiClient.get('/api/system/info')
-      ]);
-
-      setStats(statsRes.data.data);
+      const sysInfoRes = await apiClient.get('/api/system/info');
       setSysInfo(sysInfoRes.data.data);
     } catch (err) {
-      console.error('Failed to load admin dashboard stats:', err);
-      setError(err.response?.data?.message || 'Failed to retrieve operator console data. Access restricted.');
+      console.error('Failed to load system status:', err);
+      setError('Failed to retrieve system status. Please try again later.');
     } finally {
       setLoading(false);
       setIsRefreshing(false);
@@ -51,13 +41,13 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    document.title = 'Operator Console | CensusGrid';
-    fetchAdminData();
+    document.title = 'System Status | CensusGrid';
+    fetchSystemData();
   }, []);
 
   // Re-fetch data when location changes (e.g., back button navigation)
   useEffect(() => {
-    fetchAdminData();
+    fetchSystemData();
   }, [location.pathname]);
 
   const formatUptime = (seconds) => {
@@ -84,15 +74,9 @@ export default function AdminDashboard() {
           <div className="h-3.5 bg-border rounded w-80 animate-pulse"></div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-gradient-to-br from-background-card to-[#121214] border border-border rounded-xl p-6 h-36 animate-pulse flex flex-col justify-between" />
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-gradient-to-br from-background-card to-[#121214] border border-border rounded-xl p-6 h-80 animate-pulse" />
-          <div className="lg:col-span-1 bg-gradient-to-br from-background-card to-[#121214] border border-border rounded-xl p-6 h-80 animate-pulse" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-gradient-to-br from-background-card to-[#121214] border border-border rounded-xl p-6 h-80 animate-pulse" />
+          <div className="bg-gradient-to-br from-background-card to-[#121214] border border-border rounded-xl p-6 h-80 animate-pulse" />
         </div>
       </div>
     );
@@ -104,9 +88,9 @@ export default function AdminDashboard() {
         <div className="h-14 w-14 rounded-2xl bg-red-950/60 border border-red-500/20 flex items-center justify-center text-red-500 mb-5 shadow-lg shadow-red-500/5">
           <ShieldAlert size={24} className="animate-pulse" />
         </div>
-        <h3 className="text-base font-bold text-text-primary">Operator Restriction</h3>
+        <h3 className="text-base font-bold text-text-primary">System Status Unavailable</h3>
         <p className="text-text-secondary mt-2 text-xs leading-relaxed font-medium">{error}</p>
-        <Button onClick={() => fetchAdminData()} className="mt-6 w-full">
+        <Button onClick={() => fetchSystemData()} className="mt-6 w-full">
           Retry Connection
         </Button>
       </div>
@@ -118,99 +102,24 @@ export default function AdminDashboard() {
       {/* Title Header */}
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary tracking-tight">Operator Dashboard</h1>
-          <p className="text-xs text-text-secondary mt-0.5">Global SaaS billing metrics, cluster health logs, and backend telemetry.</p>
+          <h1 className="text-2xl font-bold text-text-primary tracking-tight">System Status</h1>
+          <p className="text-xs text-text-secondary mt-0.5">Real-time platform health monitoring and system information.</p>
         </div>
         <button
-          onClick={() => fetchAdminData(true)}
+          onClick={() => fetchSystemData(true)}
           disabled={isRefreshing}
           className="flex items-center justify-center gap-2 px-3 py-1.5 text-[11px] font-bold text-text-secondary bg-[#151517] hover:bg-[#1c1c1e] border border-border rounded-lg transition-all duration-200 active:scale-[0.98] disabled:opacity-50 select-none shrink-0"
         >
           <RefreshCw size={12} className={isRefreshing ? 'animate-spin' : ''} />
-          <span>Refresh Console</span>
+          <span>Refresh Status</span>
         </button>
       </div>
 
-      {/* Metrics Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-        {/* Metric 1: Total Users */}
-        <Card className="flex flex-col justify-between">
-          <div>
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Platform Users</span>
-              <div className="p-1.5 rounded-lg bg-primary-500/10 text-primary-400 border border-primary-500/15">
-                <Users size={14} />
-              </div>
-            </div>
-            <div className="mt-3.5">
-              <span className="text-2xl font-bold text-text-primary tracking-tight">
-                {stats?.totalUsers?.toLocaleString() || '0'}
-              </span>
-            </div>
-          </div>
-          <p className="text-[10px] text-text-muted mt-4 font-semibold">Total registered developer accounts</p>
-        </Card>
+      {/* System Health & Info */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
 
-        {/* Metric 2: Active Subscriptions */}
-        <Card className="flex flex-col justify-between">
-          <div>
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Paid Subscriptions</span>
-              <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/15">
-                <CreditCard size={14} />
-              </div>
-            </div>
-            <div className="mt-3.5">
-              <span className="text-2xl font-bold text-text-primary tracking-tight">
-                {stats?.activeSubscriptions?.toLocaleString() || '0'}
-              </span>
-            </div>
-          </div>
-          <p className="text-[10px] text-text-muted mt-4 font-semibold">Active Pro & Enterprise tiers</p>
-        </Card>
-
-        {/* Metric 3: Est. Revenue */}
-        <Card className="flex flex-col justify-between">
-          <div>
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Projected MRR</span>
-              <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/15">
-                <TrendingUp size={14} />
-              </div>
-            </div>
-            <div className="mt-3.5">
-              <span className="text-2xl font-bold text-text-primary tracking-tight">
-                ${stats?.estimatedRevenue?.toLocaleString() || '0'}
-              </span>
-            </div>
-          </div>
-          <p className="text-[10px] text-text-muted mt-4 font-semibold">Calculated as Pro users count * $49</p>
-        </Card>
-
-        {/* Metric 4: API Network Traffic */}
-        <Card className="flex flex-col justify-between">
-          <div>
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">API Traffic Logs</span>
-              <div className="p-1.5 rounded-lg bg-violet-500/10 text-violet-400 border border-violet-500/15">
-                <Activity size={14} />
-              </div>
-            </div>
-            <div className="mt-3.5">
-              <span className="text-2xl font-bold text-text-primary tracking-tight">
-                {stats?.networkTraffic?.toLocaleString() || '0'}
-              </span>
-            </div>
-          </div>
-          <p className="text-[10px] text-text-muted mt-4 font-semibold">Total historical requests captured</p>
-        </Card>
-      </div>
-
-      {/* Cluster Connections & Node Info */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-        
-        {/* Left Column: Server Health Diagnostics */}
-        <Card className="lg:col-span-2 p-6 flex flex-col justify-between">
+        {/* Left Column: Platform Health Check */}
+        <Card className="p-6 flex flex-col justify-between">
           <div>
             <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider mb-5 flex items-center gap-1.5">
               <Server size={14} className="text-primary-400" />
@@ -230,17 +139,10 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  {stats?.health?.database === 'healthy' ? (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                      <CheckCircle size={10} />
-                      <span>Online</span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-red-500/10 text-red-400 border border-red-500/20">
-                      <AlertCircle size={10} />
-                      <span>Offline</span>
-                    </span>
-                  )}
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <CheckCircle size={10} />
+                    <span>Online</span>
+                  </span>
                 </div>
               </div>
 
@@ -256,17 +158,10 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  {stats?.health?.redis === 'healthy' ? (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                      <CheckCircle size={10} />
-                      <span>Online</span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-red-500/10 text-red-400 border border-red-500/20">
-                      <AlertCircle size={10} />
-                      <span>Offline</span>
-                    </span>
-                  )}
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <CheckCircle size={10} />
+                    <span>Online</span>
+                  </span>
                 </div>
               </div>
 
@@ -290,8 +185,8 @@ export default function AdminDashboard() {
           </div>
         </Card>
 
-        {/* Right Column: Node Process Statistics */}
-        <Card className="lg:col-span-1 p-6 flex flex-col justify-between">
+        {/* Right Column: System Metadata */}
+        <Card className="p-6 flex flex-col justify-between">
           <div>
             <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider mb-5 flex items-center gap-1.5">
               <Clock size={14} className="text-primary-400" />

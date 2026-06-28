@@ -100,14 +100,12 @@ export const AppRoutes = () => {
         <Route path="/api-explorer" element={<ApiExplorer />} />
         <Route path="/docs" element={<Documentation />} />
         <Route path="/settings" element={<Settings />} />
-        
+        <Route path="/system-status" element={<AdminDashboard />} />
+
         {/* Pro Tier & Demo Accessible Routes */}
         <Route path="/usage" element={<LockedRoute featureName="Usage Analytics"><Usage /></LockedRoute>} />
         <Route path="/analytics" element={<LockedRoute featureName="Advanced Analytics"><Analytics /></LockedRoute>} />
         <Route path="/payments" element={<LockedRoute featureName="Billing and Payments"><Payments /></LockedRoute>} />
-
-        {/* Admin only */}
-        <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       </Route>
 
       {/* Custom 404 Route */}

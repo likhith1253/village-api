@@ -1,24 +1,15 @@
 import express from 'express';
 import * as systemController from '../controllers/system.controller.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
-import { errorResponse } from '../utils/apiError.js';
 
 const router = express.Router();
-
-const requireAdmin = (req, res, next) => {
-  // Allow demo users with ADMIN role to access admin routes
-  if (req.user?.role !== 'ADMIN') {
-    return errorResponse(res, 'Forbidden: Admin access required', 403);
-  }
-  next();
-};
 
 /**
  * @swagger
  * /api/system/info:
  *   get:
  *     summary: Fetch system statistics and environment information
- *     description: Retrieves details about the running Node environment, version, and uptime. (Requires Admin authentication)
+ *     description: Retrieves details about the running Node environment, version, and uptime. (Requires authentication)
  *     tags:
  *       - System
  *     security:
@@ -48,10 +39,7 @@ const requireAdmin = (req, res, next) => {
  *                       example: 120.45
  *       401:
  *         description: Unauthorized (Token missing or invalid)
- *       403:
- *         description: Forbidden (Admin access required)
  */
-router.get('/info', authenticate, requireAdmin, systemController.getSystemInfo);
-router.get('/admin/dashboard', authenticate, requireAdmin, systemController.getAdminDashboard);
+router.get('/info', authenticate, systemController.getSystemInfo);
 
 export default router;
