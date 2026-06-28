@@ -10,7 +10,6 @@ export const createCheckoutSession = async (req, res, next) => {
   try {
     // For demo users, return a mock checkout URL
     if (req.user?.isDemo) {
-      console.log('[DIAGNOSTIC - DEMO CHECKOUT SESSION RETURNED]');
       return res.status(200).json({
         success: true,
         data: {

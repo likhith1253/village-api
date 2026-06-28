@@ -25,7 +25,6 @@ export const getProfile = async (req, res, next) => {
         subscriptionEndDate: new Date(Date.now() + 3600 * 1000).toISOString(),
         isDemo: true
       };
-      console.log('[DIAGNOSTIC - DEMO PROFILE RETURNED]', demoProfile);
       return successResponse(res, 'User profile retrieved successfully', demoProfile, 200);
     }
 

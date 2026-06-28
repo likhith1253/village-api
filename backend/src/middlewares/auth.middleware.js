@@ -8,11 +8,8 @@ import prisma from '../config/prisma.js';
 export const authenticate = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
-  console.log('[DIAGNOSTIC - BACKEND AUTH INCOMING]', { authHeader: req.headers.authorization ? 'Present' : 'Missing' });
-
   // Check if Authorization header with Bearer token is provided
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    console.error('[DIAGNOSTIC - BACKEND AUTH REJECTED]', { reason: 'Missing or malformed Bearer token' });
     return errorResponse(res, 'Access token required', 401);
   }
 
@@ -21,7 +18,6 @@ export const authenticate = async (req, res, next) => {
   try {
     // Verify the JWT token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('[DIAGNOSTIC - BACKEND JWT DECODED]', decoded);
 
     // If it's a demo user, bypass database check and grant full access
     if (decoded.isDemo) {
@@ -33,7 +29,6 @@ export const authenticate = async (req, res, next) => {
         isAdmin: decoded.role === 'ADMIN',
         isDemo: true,
       };
-      console.log('[DIAGNOSTIC - BACKEND DEMO USER AUTHENTICATED]', req.user);
       return next();
     }
 
@@ -44,7 +39,6 @@ export const authenticate = async (req, res, next) => {
     });
 
     if (!user || !user.isActive) {
-      console.error('[DIAGNOSTIC - BACKEND AUTH REJECTED]', { reason: 'User not found or inactive', userId: decoded.userId });
       return errorResponse(res, 'User not found or inactive', 401);
     }
 
@@ -58,7 +52,6 @@ export const authenticate = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error('[DIAGNOSTIC - BACKEND AUTH REJECTED]', { reason: 'Invalid or expired token', error: error.message });
     return errorResponse(res, 'Invalid or expired token', 401);
   }
 };

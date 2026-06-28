@@ -15,7 +15,6 @@ export const getUsage = async (req, res, next) => {
 
     // For demo users, return mock data without DB queries
     if (user.isDemo) {
-      console.log('[DIAGNOSTIC - DEMO USAGE RETURNED]');
       return res.status(200).json({
         success: true,
         data: {

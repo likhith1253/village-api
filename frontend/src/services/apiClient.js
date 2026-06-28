@@ -23,7 +23,6 @@ const createApiClient = () => {
         try {
           if (typeof window !== 'undefined' && window.localStorage) {
             const token = localStorage.getItem('census_token');
-            console.log('[DIAGNOSTIC - REQUEST INTERCEPTOR]', { url: config.url, hasToken: !!token, tokenPreview: token ? `${token.substring(0, 20)}...` : 'none' });
             if (token) {
               config.headers.Authorization = `Bearer ${token}`;
             }
@@ -46,8 +45,6 @@ const createApiClient = () => {
 
         // Check if the failure belongs to an authorized route or requires interception
         if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
-          console.error('[DIAGNOSTIC - INTERCEPTOR KICK]', { status: error.response?.status, url: error.config?.url, headers: error.config?.headers });
-
           // If it is a demo user session, do not force a hard login redirect; bubble the error to the view layer
           const isDemo = localStorage.getItem('census_token') && JSON.parse(localStorage.getItem('user') || '{}').isDemo;
           if (isDemo) {

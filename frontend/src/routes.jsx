@@ -35,7 +35,6 @@ import FeatureLocked from './components/common/FeatureLocked';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  console.log('[DIAGNOSTIC - ROUTE GUARD EVALUATION]', { path: window.location.pathname, user });
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
   return children;

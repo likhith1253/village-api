@@ -5,7 +5,6 @@ import redis from '../config/redis.js';
  * Controller to handle fetching system info.
  */
 export const getSystemInfo = (req, res) => {
-  console.log('[DIAGNOSTIC - SYSTEM INFO REQUEST]', { isDemo: req.user?.isDemo });
   return res.status(200).json({
     success: true,
     data: {
@@ -23,7 +22,6 @@ export const getAdminDashboard = async (req, res, next) => {
   try {
     // For demo users, return mock data without DB queries
     if (req.user?.isDemo) {
-      console.log('[DIAGNOSTIC - DEMO ADMIN DASHBOARD RETURNED]');
       return res.status(200).json({
         success: true,
         data: {

@@ -24,13 +24,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(initialState.loading);
 
   useEffect(() => {
-    console.log('[DIAGNOSTIC - AUTH STATE CHANGE]', user);
-  }, [user]);
-
-  useEffect(() => {
     const checkAuthStatus = async () => {
       const token = localStorage.getItem('census_token');
-      console.log('[DIAGNOSTIC - AUTH CHECK START]', { hasToken: !!token, tokenPreview: token ? `${token.substring(0, 20)}...` : 'none' });
       if (!token) {
         setLoading(false);
         return;
@@ -39,11 +34,9 @@ export const AuthProvider = ({ children }) => {
       try {
         // The backend will validate the token and return the user
         const response = await apiClient.get('/api/users/me');
-        console.log('[DIAGNOSTIC - AUTH CHECK SUCCESS]', response.data.data);
         setUser(response.data.data);
       } catch (err) {
         // This can happen if the token is invalid/expired
-        console.error('[DIAGNOSTIC - AUTH CHECK FAILED]', err);
         localStorage.removeItem('census_token');
         setUser(null);
       } finally {

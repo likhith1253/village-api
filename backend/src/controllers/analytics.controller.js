@@ -7,7 +7,6 @@ export const getSummary = async (req, res, next) => {
   try {
     // For demo users, return mock data without DB queries
     if (req.user?.isDemo) {
-      console.log('[DIAGNOSTIC - DEMO ANALYTICS SUMMARY RETURNED]');
       return res.status(200).json({
         success: true,
         data: {
@@ -40,7 +39,6 @@ export const getEndpoints = async (req, res, next) => {
   try {
     // For demo users, return mock data without DB queries
     if (req.user?.isDemo) {
-      console.log('[DIAGNOSTIC - DEMO ANALYTICS ENDPOINTS RETURNED]');
       return res.status(200).json({
         success: true,
         data: [
@@ -72,7 +70,6 @@ export const getStatusCodes = async (req, res, next) => {
   try {
     // For demo users, return mock data without DB queries
     if (req.user?.isDemo) {
-      console.log('[DIAGNOSTIC - DEMO ANALYTICS STATUS CODES RETURNED]');
       return res.status(200).json({
         success: true,
         data: {
@@ -106,7 +103,6 @@ export const getDaily = async (req, res, next) => {
   try {
     // For demo users, return mock data without DB queries
     if (req.user?.isDemo) {
-      console.log('[DIAGNOSTIC - DEMO ANALYTICS DAILY RETURNED]');
       return res.status(200).json({
         success: true,
         data: [

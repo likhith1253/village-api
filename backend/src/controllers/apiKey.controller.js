@@ -33,7 +33,6 @@ export const createKey = async (req, res, next) => {
 
 export const getKeys = async (req, res, next) => {
   try {
-    console.log('[DIAGNOSTIC - API KEYS QUERY]', req.user);
     const { userId, isDemo } = req.user;
 
     if (!userId) {
@@ -60,7 +59,6 @@ export const getKeys = async (req, res, next) => {
     const keys = await apiKeyService.getKeysByUser(userId);
     return successResponse(res, 'API keys retrieved successfully', keys, 200);
   } catch (error) {
-    console.error('[DIAGNOSTIC - API KEYS FATAL ERROR]', error.stack);
     next(error);
   }
 };
