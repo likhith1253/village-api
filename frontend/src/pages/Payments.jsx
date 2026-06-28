@@ -24,10 +24,16 @@ export default function Payments() {
   const [successMsg, setSuccessMsg] = useState('');
 
   const handleUpgradePro = async () => {
+    // Demo users cannot upgrade - show message
+    if (user?.isDemo) {
+      setError('Demo users cannot upgrade to paid plans. This is a demonstration account only.');
+      return;
+    }
+
     setLoading(true);
     setError('');
     setSuccessMsg('');
-    
+
     // 1. Try real Stripe checkout
     try {
       const response = await apiClient.post('/api/billing/checkout');
@@ -58,14 +64,14 @@ export default function Payments() {
 
       // Call local webhook directly
       await apiClient.post('/api/billing/webhook', mockEvent);
-      
+
       // Sync local AuthContext user details
       if (refreshUser) {
         await refreshUser();
       }
-      
+
       setSuccessMsg('Stripe Sandbox Checkout Simulated Successfully! Plan upgraded to Developer Pro.');
-      
+
       setTimeout(() => {
         navigate('/dashboard?checkout=success');
       }, 2000);
@@ -251,19 +257,6 @@ export default function Payments() {
             </Card>
           );
         })}
-      </div>
-
-      {/* Feature matrix */}
-      <div className="max-w-6xl mt-8">
-        <Card className="p-5">
-          <h4 className="text-xs font-extrabold uppercase tracking-wider text-text-primary mb-3 flex items-center gap-1.5">
-            <HelpCircle size={14} className="text-primary-400" />
-            <span>Sandbox Integration Testing</span>
-          </h4>
-          <p className="text-xs text-text-secondary leading-relaxed font-semibold">
-            In development environment, if the Stripe servers are unconfigured or disconnected, clicking "Upgrade to Pro" will trigger a local webhook callback. This simulates a successful payment checkout session completion, directly upgrading your plan status in the local sandbox database.
-          </p>
-        </Card>
       </div>
     </div>
   );

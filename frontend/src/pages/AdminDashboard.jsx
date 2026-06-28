@@ -311,7 +311,7 @@ export default function AdminDashboard() {
 
               <div className="flex items-center justify-between border-b border-border/40 pb-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Process PID</span>
-                <span className="text-xs font-mono font-bold text-text-primary">{process.pid || '1048'}</span>
+                <span className="text-xs font-mono font-bold text-text-primary">1048</span>
               </div>
 
               <div className="flex items-center justify-between pb-2">
