@@ -162,7 +162,7 @@ Manage developer profile name, email, account password, and billing subscription
 ### Authorization Header
 All geographic endpoints require the API Key to be sent inside the `x-api-key` header.
 ```
-x-api-key: vap_live_6c029da9f138e07a
+x-api-key: vap_live_xxxxxxxx
 ```
 
 ### 1. Retrieve States
