@@ -132,7 +132,11 @@ export const updateKey = async (req, res, next) => {
       return successResponse(res, 'API key updated successfully', { id, name, isActive }, 200);
     }
 
-    const updatedKey = await apiKeyService.updateApiKey(parseInt(id, 10), userId, { name, isActive });
+    const keyId = Number(id);
+    if (!Number.isInteger(keyId) || keyId < 1) {
+      return errorResponse(res, 'Invalid API key id', 400);
+    }
+    const updatedKey = await apiKeyService.updateApiKey(keyId, userId, { name, isActive });
     return successResponse(res, 'API key updated successfully', updatedKey, 200);
   } catch (error) {
     if (error.statusCode) {
@@ -157,7 +161,11 @@ export const deleteKey = async (req, res, next) => {
       return successResponse(res, 'API key revoked successfully', null, 200);
     }
 
-    await apiKeyService.deleteApiKey(parseInt(id, 10), userId);
+    const keyId = Number(id);
+    if (!Number.isInteger(keyId) || keyId < 1) {
+      return errorResponse(res, 'Invalid API key id', 400);
+    }
+    await apiKeyService.deleteApiKey(keyId, userId);
     return successResponse(res, 'API key revoked successfully', null, 200);
   } catch (error) {
     if (error.statusCode) {

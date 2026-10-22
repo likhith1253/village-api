@@ -40,6 +40,11 @@ const router = express.Router();
  *       401:
  *         description: Unauthorized (Token missing or invalid)
  */
-router.get('/info', authenticate, systemController.getSystemInfo);
+const requireAdmin = (req, res, next) =>
+  req.user?.role?.toUpperCase() === 'ADMIN'
+    ? next()
+    : res.status(403).json({ success: false, message: 'Admin access required' });
+
+router.get('/info', authenticate, requireAdmin, systemController.getSystemInfo);
 
 export default router;

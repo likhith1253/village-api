@@ -1,5 +1,6 @@
 import * as villageService from '../services/village.service.js';
-import redis from '../config/redis.js';
+import { cacheGet, cacheSet } from '../utils/cache.js';
+import { queryString, MAX_SEARCH_LENGTH } from '../utils/query.js';
 
 /**
  * Controller to handle village name search.
@@ -7,32 +8,28 @@ import redis from '../config/redis.js';
  */
 export const searchVillages = async (req, res, next) => {
   try {
-    const { q } = req.query;
+    const q = queryString(req.query.q, MAX_SEARCH_LENGTH);
 
-    // Validation: q is required
-    if (q === undefined || q === null || q.trim() === '') {
+    // Validation: q is required and capped to keep cache keys and LIKE scans bounded
+    if (q === undefined) {
       return res.status(400).json({
         success: false,
-        message: 'search query is required'
+        message: `search query is required (1-${MAX_SEARCH_LENGTH} characters)`
       });
     }
 
-    const queryStr = q.trim().toLowerCase();
-    const cacheKey = `villagesearch:${queryStr}`;
-    const cached = await redis.get(cacheKey);
+    const cacheKey = `villagesearch:${q.toLowerCase()}`;
+    const cached = await cacheGet(cacheKey);
     if (cached) {
-      console.log('CACHE HIT');
-      const data = typeof cached === 'string' ? JSON.parse(cached) : cached;
       return res.status(200).json({
         success: true,
-        count: data.length,
-        data: data
+        count: cached.length,
+        data: cached
       });
     }
 
-    console.log('CACHE MISS');
-    const villages = await villageService.searchVillagesByName(q.trim());
-    await redis.set(cacheKey, JSON.stringify(villages), { ex: 3600 });
+    const villages = await villageService.searchVillagesByName(q);
+    await cacheSet(cacheKey, villages);
 
     return res.status(200).json({
       success: true,
@@ -49,7 +46,10 @@ export const searchVillages = async (req, res, next) => {
  */
 export const getVillageByCode = async (req, res, next) => {
   try {
-    const { villageCode } = req.params;
+    const villageCode = queryString(req.params.villageCode);
+    if (villageCode === undefined) {
+      return res.status(400).json({ success: false, message: 'Invalid villageCode' });
+    }
 
     const village = await villageService.getVillageByCode(villageCode);
 
@@ -74,12 +74,16 @@ export const getVillageByCode = async (req, res, next) => {
  */
 export const getVillages = async (req, res, next) => {
   try {
-    const { stateCode, districtCode, subDistrictCode } = req.query;
+    const stateCode = queryString(req.query.stateCode);
+    const districtCode = queryString(req.query.districtCode);
+    const subDistrictCode = queryString(req.query.subDistrictCode);
 
     // Parse and validate page query param (default: 1)
     let page = parseInt(req.query.page, 10);
     if (isNaN(page) || page < 1) {
       page = 1;
+    } else if (page > 1000000) {
+      page = 1000000;
     }
 
     // Parse and validate limit query param (default: 50, max: 100)

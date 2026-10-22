@@ -5,8 +5,8 @@
 import XLSX from 'xlsx';
 import fs from 'fs';
 import path from 'path';
+import { DATASET_DIR } from './lib/dataset.js';
 
-const DATASET_DIR = 'D:\\dataset';
 
 function main() {
   const files = fs.readdirSync(DATASET_DIR)

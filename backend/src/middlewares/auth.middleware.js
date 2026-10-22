@@ -17,7 +17,7 @@ export const authenticate = async (req, res, next) => {
 
   try {
     // Verify the JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
 
     // If it's a demo user, bypass database check and grant full access
     if (decoded.isDemo) {

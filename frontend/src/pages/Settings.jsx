@@ -115,8 +115,8 @@ export default function Settings() {
     if (!currentPassword) errors.currentPassword = 'Current password is required';
     if (!newPassword) {
       errors.newPassword = 'New password is required';
-    } else if (newPassword.length < 6) {
-      errors.newPassword = 'New password must be at least 6 characters';
+    } else if (newPassword.length < 8) {
+      errors.newPassword = 'New password must be at least 8 characters';
     }
     if (newPassword !== confirmPassword) {
       errors.confirmPassword = 'Passwords do not match';

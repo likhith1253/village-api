@@ -1,21 +1,21 @@
 import { PrismaClient } from '@prisma/client';
 import XLSX from 'xlsx';
 import fs from 'fs';
-import path from 'path';
+import { BIHAR_FILE } from './lib/dataset.js';
 
 /**
  * Script to import a sample dataset (first 100 villages and their parent hierarchies)
  * for the Village API SaaS Platform.
  * 
  * Flow:
- * 1. Read D:\dataset\Rdir_2011_10_BIHAR.xls
+ * 1. Read <DATASET_DIR>/Rdir_2011_10_BIHAR.xls
  * 2. Maintain state/district/sub-district mapping as we read row-by-row.
  * 3. Use upsert everywhere.
  * 4. Stop after inserting exactly 100 villages.
  */
 
 // File path to the dataset
-const FILE_PATH = 'D:\\dataset\\Rdir_2011_10_BIHAR.xls';
+const FILE_PATH = BIHAR_FILE;
 
 // Helper to convert strings to a premium Title Case
 function toTitleCase(str) {

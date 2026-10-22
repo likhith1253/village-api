@@ -7,7 +7,7 @@ const options = {
     info: {
       title: 'CensusGrid',
       version: '1.0.0',
-      description: 'Production-grade REST API for Indian village-level geographic data.',
+      description: 'REST API for Indian village-level geographic data (Census 2011).',
     },
     servers: [
       {

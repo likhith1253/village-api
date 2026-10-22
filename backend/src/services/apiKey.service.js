@@ -18,7 +18,9 @@ export const getApiKeyWithUser = async (key) => {
   return await prisma.apiKey.findUnique({
     where: { key },
     include: {
-      user: true
+      user: {
+        select: { id: true, email: true, role: true, plan: true, isActive: true }
+      }
     }
   });
 };

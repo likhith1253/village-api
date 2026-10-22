@@ -26,7 +26,7 @@ export const rateLimiter = async (req, res, next) => {
     if (!req.user && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
       const token = req.headers.authorization.split(' ')[1];
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
         const userDb = await prisma.user.findUnique({
           where: { id: decoded.userId },
           select: { id: true, email: true, role: true, plan: true, isActive: true }

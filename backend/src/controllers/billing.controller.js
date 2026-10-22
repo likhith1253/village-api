@@ -1,7 +1,17 @@
 import Stripe from 'stripe';
 import prisma from '../config/prisma.js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'mock_key');
+// Created lazily so the app boots (and tests run) without Stripe credentials.
+let stripeClient = null;
+const getStripe = () => {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    const err = new Error('Billing is not configured');
+    err.statusCode = 503;
+    throw err;
+  }
+  if (!stripeClient) stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY);
+  return stripeClient;
+};
 
 /**
  * Creates a Stripe Checkout Session for subscribing to the PRO plan.
@@ -23,6 +33,7 @@ export const createCheckoutSession = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Unauthorized access' });
     }
 
+    const stripe = getStripe();
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
@@ -89,39 +100,44 @@ export const createCheckoutSession = async (req, res, next) => {
 /**
  * Handles Stripe webhook events.
  */
-export const handleWebhook = async (req, res, next) => {
+const ACTIVE_STATUSES = new Set(['active', 'trialing']);
+
+export const handleWebhook = async (req, res) => {
   const sig = req.headers['stripe-signature'];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  let event;
 
+  // Never process unsigned events: without a secret the endpoint is closed,
+  // otherwise anyone could POST a fake event and upgrade an account to PRO.
+  if (!webhookSecret) {
+    return res.status(503).json({ success: false, message: 'Webhook not configured' });
+  }
+  if (!sig) {
+    return res.status(400).json({ success: false, message: 'Missing Stripe signature' });
+  }
+
+  let event;
   try {
-    if (webhookSecret && sig) {
-      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-    } else {
-      console.warn('⚠️ Stripe webhook signature verification skipped. Parsing request body directly.');
-      event = JSON.parse(req.body.toString());
-    }
+    event = Stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
   } catch (err) {
-    console.error(`❌ Webhook signature verification failed:`, err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    console.error('Webhook signature verification failed:', err.message);
+    return res.status(400).json({ success: false, message: 'Invalid webhook signature' });
   }
 
   try {
-    const session = event.data.object;
+    const object = event.data.object;
 
     switch (event.type) {
-      case 'checkout.session.completed':
-      case 'customer.subscription.updated': {
-        const userId = parseInt(session.metadata?.userId, 10);
-        const stripeCustomerId = session.customer;
-        
+      case 'checkout.session.completed': {
+        const userId = parseInt(object.metadata?.userId, 10);
+        if (!userId) break;
+
         let subscriptionStatus = 'active';
         let subscriptionEndDate = new Date();
-        subscriptionEndDate.setDate(subscriptionEndDate.getDate() + 30); // 30 days default
+        subscriptionEndDate.setDate(subscriptionEndDate.getDate() + 30); // fallback
 
-        if (session.subscription) {
+        if (object.subscription) {
           try {
-            const subscription = await stripe.subscriptions.retrieve(session.subscription);
+            const subscription = await getStripe().subscriptions.retrieve(object.subscription);
             subscriptionStatus = subscription.status;
             subscriptionEndDate = new Date(subscription.current_period_end * 1000);
           } catch (subErr) {
@@ -129,25 +145,34 @@ export const handleWebhook = async (req, res, next) => {
           }
         }
 
-        if (userId) {
-          await prisma.user.update({
-            where: { id: userId },
-            data: {
-              plan: 'PRO',
-              stripeCustomerId,
-              subscriptionStatus,
-              subscriptionEndDate
-            }
-          });
-          console.log(`✅ Subscription finalized for user ${userId}. Plan updated to PRO.`);
+        await prisma.user.updateMany({
+          where: { id: userId },
+          data: {
+            plan: 'PRO',
+            stripeCustomerId: object.customer,
+            subscriptionStatus,
+            subscriptionEndDate
+          }
+        });
+        break;
+      }
+      case 'customer.subscription.updated': {
+        // Subscription objects carry no checkout metadata; match on the Stripe customer.
+        const user = await prisma.user.findFirst({ where: { stripeCustomerId: object.customer } });
+        if (user) {
+          const data = {
+            plan: ACTIVE_STATUSES.has(object.status) ? 'PRO' : 'FREE',
+            subscriptionStatus: object.status
+          };
+          if (object.current_period_end) {
+            data.subscriptionEndDate = new Date(object.current_period_end * 1000);
+          }
+          await prisma.user.update({ where: { id: user.id }, data });
         }
         break;
       }
       case 'customer.subscription.deleted': {
-        const stripeCustomerId = session.customer;
-        const user = await prisma.user.findFirst({
-          where: { stripeCustomerId }
-        });
+        const user = await prisma.user.findFirst({ where: { stripeCustomerId: object.customer } });
         if (user) {
           await prisma.user.update({
             where: { id: user.id },
@@ -157,12 +182,11 @@ export const handleWebhook = async (req, res, next) => {
               subscriptionEndDate: new Date()
             }
           });
-          console.log(`⚠️ Subscription canceled/deleted. Reverted user ${user.id} to FREE.`);
         }
         break;
       }
       default:
-        console.log(`Stripe Webhook: Unhandled event type ${event.type}`);
+        break;
     }
 
     return res.status(200).json({ received: true });

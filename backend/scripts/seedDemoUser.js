@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
-import prisma from '../config/prisma.js';
+import prisma from '../src/config/prisma.js';
 
 /**
- * Seed script to create a demo user with email demo@censusgrid.com and password demo123
+ * Seed script to create a demo user with email demo@censusgrid.com and the password from DEMO_USER_PASSWORD
  * This user will have a PRO plan and a default API key for immediate access.
  */
 async function seedDemoUser() {
@@ -46,7 +46,11 @@ async function seedDemoUser() {
     }
 
     // Hash the password
-    const passwordHash = await bcrypt.hash('demo123', 10);
+    const demoPassword = process.env.DEMO_USER_PASSWORD;
+    if (!demoPassword || demoPassword.length < 8) {
+      throw new Error('Set DEMO_USER_PASSWORD (min 8 chars) in the environment before seeding the demo user.');
+    }
+    const passwordHash = await bcrypt.hash(demoPassword, 10);
 
     // Create the demo user with PRO plan
     const demoUser = await prisma.user.create({

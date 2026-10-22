@@ -9,7 +9,8 @@ import analyticsRoutes from './routes/analytics.routes.js';
 import usageRoutes from './routes/usage.routes.js';
 import redis from './config/redis.js';
 import systemRoutes from './routes/system.routes.js';
-import { errorHandler } from './middlewares/errorHandler.js';
+import { errorHandler, notFoundHandler } from './middlewares/errorHandler.js';
+import { createAuthLimiter } from './middlewares/authLimiter.middleware.js';
 import { authenticateApiKey } from './middlewares/apiKey.middleware.js';
 import { apiLogMiddleware } from './middlewares/apiLog.middleware.js';
 import prisma from './config/prisma.js';
@@ -23,13 +24,23 @@ import { handleWebhook } from './controllers/billing.controller.js';
 
 const app = express();
 
+if (process.env.TRUST_PROXY) {
+  // e.g. TRUST_PROXY=1 when deployed behind a single reverse proxy; needed for correct req.ip
+  app.set('trust proxy', Number(process.env.TRUST_PROXY) || process.env.TRUST_PROXY);
+}
+
+const DEFAULT_ORIGINS = ['https://censusgrid.vercel.app', 'http://localhost:5173', 'http://localhost:3000'];
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
+  : DEFAULT_ORIGINS;
+
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['https://censusgrid.vercel.app', 'http://localhost:5173', 'http://localhost:3000'],
+  origin: allowedOrigins,
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key']
 }));
 
 // Stripe webhook raw parser (MUST be registered before express.json)
@@ -45,69 +56,31 @@ app.use(apiLogMiddleware);
 // Swagger UI Route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
-// Debug Routes
-if (process.env.NODE_ENV !== 'production') {
-  app.get('/api/debug/runtime', (req, res) => {
-    res.json({
-      port: process.env.PORT || 3000,
-      pid: process.pid,
-      nodeVersion: process.version,
-      timestamp: new Date().toISOString()
-    });
-  });
-
-  app.get('/api/debug/users', async (req, res, next) => {
-    try {
-      const users = await prisma.user.findMany();
-      res.json(users);
-    } catch (error) {
-      next(error);
-    }
-  });
-
-  app.get('/api/debug/log-test', authenticateApiKey, apiLogMiddleware, (req, res) => {
-    res.json({
-      success: true,
-      message: "Log test successful"
-    });
-  });
-}
-
 // Routes
-console.log('Mounting route: /api/auth');
-app.use('/api/auth', authRoutes);
+const authLimiter = createAuthLimiter({ max: Number(process.env.AUTH_RATE_LIMIT_MAX) || 20 });
+app.use('/api/auth', authLimiter, authRoutes);
 
-console.log('Mounting route: /api/keys');
 app.use('/api/keys', apiKeyRoutes);
 
-console.log('Mounting route: /api/v1/states');
 app.use('/api/v1/states', authenticateApiKey, stateRoutes);
 
-console.log('Mounting route: /api/v1/districts');
 app.use('/api/v1/districts', authenticateApiKey, districtRoutes);
 
-console.log('Mounting route: /api/v1/subdistricts');
 app.use('/api/v1/subdistricts', authenticateApiKey, subDistrictRoutes);
 
-console.log('Mounting route: /api/v1/villages');
 app.use('/api/v1/villages', authenticateApiKey, villageRoutes);
 
-console.log('Mounting route: /api/analytics');
 app.use('/api/analytics', analyticsRoutes);
 
-console.log('Mounting route: /api/usage');
 app.use('/api/usage', usageRoutes);
 
-console.log('Mounting route: /api/system');
 app.use('/api/system', systemRoutes);
 
-console.log('Mounting route: /api/users');
 app.use('/api/users', userRoutes);
 
-console.log('Mounting route: /api/billing');
 app.use('/api/billing', billingRoutes);
 
-// Temporary Test API Key Route
+// API key verification route
 app.get('/api/test-key', authenticateApiKey, (req, res) => {
   res.status(200).json({
     success: true,
@@ -143,7 +116,8 @@ app.get('/health', async (req, res) => {
   });
 });
 
-// Global Error Handler Middleware
+// 404 + global error handler
+app.use(notFoundHandler);
 app.use(errorHandler);
 
 export default app;

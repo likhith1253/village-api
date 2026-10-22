@@ -1,276 +1,199 @@
-# CensusGrid: India's Administrative & Geographic Data Infrastructure
+# CensusGrid
 
-CensusGrid is a production-ready, high-performance developer portal and REST API gateway designed to solve India's rural address verification problem. It provides structured administrative records for over 457,000+ Indian villages spanning 600+ districts and 36 States & Union Territories. Built with an Express/Node.js backend, a modern React developer dashboard, Upstash Redis caching, and Stripe billing integrations, CensusGrid bridges the gap between raw government census records and modern API-driven applications.
+CensusGrid (repository: `village-api`) is a REST API for looking up Indian administrative geography: **State -> District -> Sub-district -> Village**. Developers sign up in a React dashboard, create API keys, call the data endpoints with an `x-api-key` header, and see their usage. A Pro plan (Stripe subscription) raises the daily quota and unlocks analytics.
 
----
+It is a full-stack portfolio project: an Express/Prisma/PostgreSQL backend with API-key auth, per-plan rate limiting, request logging, Redis caching and Stripe billing, plus a Vite/React dashboard.
 
-## The Core Challenge: Why CensusGrid is Essential
+## The problem
 
-In modern software engineering, resolving geographic and administrative location data in India is one of the most persistent, resource-draining hurdles. With over 1.4 billion people—more than 65% of whom reside in rural areas spread across nearly half a million villages—accurate location validation is critical. However, addressing models in India are highly fragmented. Names are romanized in inconsistent ways across different government departments, administrative boundaries change frequently, and spelling variations are common.
+Rural addresses in India are hard to normalise: village names are spelled many ways and the same name repeats across districts. The Census of India publishes a structured village directory, but it ships as one Excel file per state. CensusGrid loads that directory into PostgreSQL and exposes it as a small, cacheable lookup API with the account, quota and billing plumbing a public API needs.
 
-For logistics providers, fintech companies conducting credit risk assessments, e-commerce delivery networks, rural development organizations, and civic-tech platforms, mapping a transaction or user down to the correct village level is not optional—it is a regulatory and operational necessity. Yet, historically, building and maintaining an accurate, low-latency, and normalized database of Indian villages has been a luxury reserved for enterprise conglomerates with dedicated data-science and mapping divisions.
+## What is implemented
 
-### Operational Impact of CensusGrid:
-* **Logistics & Delivery Success**: Resolving mismatched village names directly reduces delivery failures and operational overhead for rural supply chains.
-* **Fintech & Financial Inclusion**: Micro-lenders and mobile banking applications require exact KYC verification to assess credit history and meet regulatory compliance in rural sectors.
-* **Agritech & Crop Insurance**: Direct mapping of village records allows immediate cross-referencing against official land register databases for evaluating crop yields and payouts.
-* **Healthcare & Aid Distribution**: Public health initiatives and NGOs can programmatically target distribution networks to the exact village level, eliminating waste and delivery lag.
+| Area | Details |
+| --- | --- |
+| Data | Importer for the Census 2011 village directory (29 `.xls` files bundled as a zip) into Country/State/District/SubDistrict/Village tables (Prisma, bulk `createMany`) |
+| Data API | `GET /api/v1/states`, `/districts`, `/subdistricts`, `/villages`, `/villages/search`, `/villages/:villageCode`, authenticated by API key |
+| Accounts | Register / login (bcrypt, JWT HS256, 7-day expiry), profile and password update |
+| API keys | Create, list, enable/disable and delete keys per user (`vap_` + 48 hex chars) |
+| Rate limiting | Daily quota per user, counted from the request log table: FREE 100/day (configurable), PRO 10,000/day, ADMIN/ENTERPRISE unlimited. Separate per-IP limiter on login/register |
+| Caching | Redis (Upstash) cache for lookup responses, 1 hour TTL; falls back to a per-process in-memory map when Redis is not configured, and cache errors never fail a request |
+| Analytics | Request counts, per-endpoint counts, status codes and 30-day trend from the request log. PRO users see their own data; ADMIN sees everything |
+| Billing | Stripe Checkout subscription ($49/month in code) and a signature-verified webhook that sets the plan to PRO or back to FREE |
+| Docs | OpenAPI/Swagger UI at `/api-docs`, Postman collection in `backend/` |
+| Dashboard | React 18 + Vite + Tailwind + Recharts: keys, usage, analytics, API explorer, settings, a read-only demo login |
 
-CensusGrid democratizes this critical data infrastructure. By compiling, sanitizing, and indexing the complete hierarchical administrative tree of India (State ➔ District ➔ Subdistrict ➔ Village), it serves as a single source of truth. With edge-read caching, self-serve developer key management, and streamlined search query endpoints, developers can integrate high-fidelity geographic validation into their platforms in a matter of minutes.
+## Architecture
 
----
-
-## 1. Technology Stack
-
-### Backend
-* **Runtime**: Node.js & Express
-* **Database**: PostgreSQL (hosted on Neon Serverless)
-* **ORM**: Prisma Client
-* **Caching**: Redis (hosted on Upstash Redis Edge)
-* **Security & Auth**: JWT (JSON Web Tokens), BCrypt password hashing, Helmet headers protection, and CORS controls.
-* **Documentation**: OpenAPI Swagger Specification (`/api-docs` endpoint)
-
-### Frontend
-* **Core**: React 18 & Vite
-* **Styling**: TailwindCSS & Custom Modern Glassmorphic CSS
-* **Charts**: Recharts (dynamic traffic area graphs, status code pie distribution, endpoint frequency bars)
-* **Iconography**: Lucide React
-
----
-
-## 2. Platform Architecture
-
-The data flows securely through multiple middleware boundaries to protect backend resources and optimize read times:
-
-```
-[ Frontend (React SPA) ]
-           │
-           ▼ (HTTPS / API Keys or JWT)
-[ Backend Express API Gateway ] ──► [ Helmet & CORS Protections ]
-           │
-           ▼
-[ Authentication & Rate Limiting Middlewares ] ──► [ Neon PostgreSQL (Prisma) ]
-           │ (Validates dynamic plan/role from DB)
-           ▼
-[ Caching Resolution (Upstash Redis) ] ──► (Cache Hit: Return cached JSON)
-           │ (Cache Miss)
-           ▼
-[ Database Query Resolver ] ──► [ Neon PostgreSQL (Prisma) ]
-           │
-           ▼ (Cache result in Redis)
-[ Response Sent to Client ]
+```mermaid
+flowchart LR
+  subgraph Client
+    SPA[React dashboard]
+    APP[Third-party app]
+  end
+  SPA -- "JWT (Authorization: Bearer)" --> API
+  APP -- "x-api-key" --> API
+  subgraph API[Express API]
+    MW[helmet, CORS, body limit 10kb, auth limiter]
+    RL[Daily quota middleware]
+    AUTH[JWT auth or API-key auth]
+    CTRL[Controllers and services]
+    LOG[Request log writer]
+    MW --> RL --> AUTH --> CTRL
+    CTRL --> LOG
+  end
+  CTRL <--> REDIS[(Upstash Redis cache)]
+  CTRL <--> PG[(PostgreSQL via Prisma)]
+  RL --> PG
+  LOG --> PG
+  STRIPE[Stripe] -- "signed webhook" --> API
+  CTRL -- "Checkout session" --> STRIPE
 ```
 
-### Checkout & Webhook Lifecycle
-```
-[ Frontend Console ] ──► POST /api/billing/checkout ──► [ Stripe Hosted Checkout ]
-                                                                 │
-                                                                 ▼ (Completes Payment)
-[ User Plan Upgraded (PRO) ] ◄── Write DB Plan ◄── [ Express Webhook Endpoint ]
-```
+Request flow for a data call: the quota middleware resolves the API key and counts today's rows in `ApiLog`; the route middleware authenticates the key; the controller checks the cache, falls back to PostgreSQL, caches the result; a `finish` hook writes one `ApiLog` row (this row is what quota, usage and analytics are computed from).
 
----
+Route groups:
 
-## 3. Implemented Features
+| Prefix | Auth | Purpose |
+| --- | --- | --- |
+| `/api/auth/*` | none (IP rate-limited) | register, login, demo login |
+| `/api/v1/*` | `x-api-key` | geographic data |
+| `/api/keys`, `/api/users`, `/api/billing/checkout`, `/api/usage/me` | JWT (`/usage/me` also accepts `x-api-key`) | account self-service |
+| `/api/analytics/*` | JWT + PRO or ADMIN | request analytics |
+| `/api/system/info` | JWT + ADMIN | runtime info |
+| `/api/billing/webhook` | Stripe signature | plan changes |
+| `/health`, `/api-docs` | none | health check, Swagger UI |
 
-### Authentication & Sessions
-* Developer registration, login, and secure session management.
-* JWT authorization tokens used for API credentials management, settings updates, and dashboard lookups.
+## API examples
 
-### API Key Infrastructure
-* Self-serve developer interface to generate secure hex keys (`vap_...`).
-* Activation toggles to disable or enable keys, and instant credential revocation.
-* Requests tracked individually per key and logged to the telemetry database.
+All data endpoints need `x-api-key: vap_...` (create a key in the dashboard or via `POST /api/keys`). Responses use `{ "success": true, ... }`; errors use `{ "success": false, "message": "..." }`. Field shapes below are exact; the values are illustrative.
 
-### Geographic REST APIs
-* Standardized, indexed endpoints querying:
-  * **States**: Full listing of codes and names.
-  * **Districts**: Filtered by parent state code.
-  * **Subdistricts**: Filtered by parent district code.
-  * **Villages**: Paginated village directories, specific code address retrievals, and partial-name fuzzy searches.
-
-### Caching Architecture
-* Upstash Redis engine acts as an edge-read cache, bypassing database lookups for repeat geographic queries.
-* Automated local in-memory cache fallback prevents application crashes in the event of cache timeouts.
-
-### Usage & Analytics
-* **Telemetry Aggregations**: Chart trends showing request volume, daily counts, and API key metrics.
-* **Privacy Controls**: Analytics queries are filtered by user identity at the database layer. Developers only view their own usage, while platform admins access global data.
-* **HTTP Code Analysis**: Visual breakdowns of status codes (2xx, 4xx, 5xx) to monitor query errors.
-
-### Tiered Billing & Stripe
-* Stripe hosted checkout redirects to capture monthly subscriptions ($49/mo).
-* Webhook signature validation updating plans to `PRO` automatically.
-* Clean billing details cards inside user settings displaying billing period end dates.
-
----
-
-## 4. Visual Walkthrough
-
-### 1. Landing Page
-Features a dark grid theme, query sandbox examples, and real-time response latency counters.
-![Landing Page](./screenshots/landing_page.png)
-
-### 2. Login Page
-Developer authentication screen issuing secure session tokens.
-![Login Page](./screenshots/login.png)
-
-### 3. Developer Dashboard
-Provides an overview of remaining requests, current tier, and active API keys.
-![Developer Dashboard](./screenshots/dashboard.png)
-
-### 4. API Credentials Panel
-Enables key creation, renaming, status toggling, and revocation.
-![API Keys Panel](./screenshots/api_keys.png)
-
-### 5. API Quotas & Usage Tracking
-Tracks daily requests consumed against the account's plan limitations.
-![API Quotas Page](./screenshots/usage.png)
-
-### 6. Platform Analytics Page
-Displays daily request trend charts, status code distributions, and active endpoints.
-![Analytics Page](./screenshots/analytics.png)
-
-### 7. Interactive API Explorer
-Allows developers to query raw REST endpoints and inspect returned JSON payloads directly in the browser.
-![API Explorer](./screenshots/api_explorer.png)
-
-### 8. Integration Documentation
-cURL code templates, endpoints descriptions, parameters tables, and quick navigation headers.
-![Documentation Portal](./screenshots/documentation.png)
-
-### 9. Stripe Hosted Payment Gateway
-Secure payment screen where upgraded users subscribe to the Developer Pro plan.
-![Stripe Checkout](./screenshots/stripe_checkout.png)
-
-### 10. Account Settings
-Manage developer profile name, email, account password, and billing subscriptions.
-![Account Settings](./screenshots/settings.png)
-
----
-
-## 5. Live Deployment Details
-
-* **Frontend Console**: `https://censusgrid.vercel.app`
-* **Backend API Server**: `https://censusgrid-backend.onrender.com`
-* **Swagger Documentation**: `https://censusgrid-backend.onrender.com/api-docs`
-
----
-
-## 6. API Specification & Examples
-
-### Authorization Header
-All geographic endpoints require the API Key to be sent inside the `x-api-key` header.
-```
-x-api-key: vap_live_6c029da9f138e07a
-```
-
-### 1. Retrieve States
-`GET /api/v1/states`
-
-**cURL Request**:
 ```bash
-curl -H "x-api-key: your_api_key" \
-  "https://api.censusgrid.com/api/v1/states"
+BASE=http://localhost:3000
+KEY=vap_your_api_key_here
+
+# States
+curl -H "x-api-key: $KEY" "$BASE/api/v1/states"
+# { "success": true, "count": n, "data": [ { "id": 1, "name": "...", "stateCode": "10" } ] }
+
+# Districts of a state (stateCode is required)
+curl -H "x-api-key: $KEY" "$BASE/api/v1/districts?stateCode=10"
+# { "success": true, "count": n, "data": [ { "id": 1, "name": "...", "districtCode": "..." } ] }
+
+# Sub-districts of a district (districtCode is required)
+curl -H "x-api-key: $KEY" "$BASE/api/v1/subdistricts?districtCode=<districtCode>"
+# { "success": true, "count": n, "data": [ { "id": 1, "subDistrictCode": "...", "name": "..." } ] }
+
+# Paginated villages; filters stateCode, districtCode, subDistrictCode; limit max 100 (default 50)
+curl -H "x-api-key: $KEY" "$BASE/api/v1/villages?stateCode=10&page=1&limit=20"
+# { "success": true, "page": 1, "limit": 20, "count": <total matches>, "data": [ { "villageCode": "...", "name": "..." } ] }
+
+# Search by name: q required, 1-100 chars, case-insensitive substring, max 20 results
+curl -H "x-api-key: $KEY" "$BASE/api/v1/villages/search?q=rampur"
+# { "success": true, "count": n, "data": [ { "villageCode": "...", "name": "..." } ] }
+
+# One village with its hierarchy
+curl -H "x-api-key: $KEY" "$BASE/api/v1/villages/<villageCode>"
+# { "success": true, "data": { "villageCode": "...", "villageName": "...", "state": "...", "district": "...", "subDistrict": "...", "fullAddress": "..." } }
 ```
 
-**JSON Response**:
-```json
-{
-  "success": true,
-  "count": 3,
-  "data": [
-    { "code": "AP", "name": "Andhra Pradesh", "type": "STATE" },
-    { "code": "KA", "name": "Karnataka", "type": "STATE" },
-    { "code": "MH", "name": "Maharashtra", "type": "STATE" }
-  ]
-}
-```
+Account endpoints:
 
-### 2. Search Villages
-`GET /api/v1/villages/search?q=Agali`
-
-**cURL Request**:
 ```bash
-curl -H "x-api-key: your_api_key" \
-  "https://api.censusgrid.com/api/v1/villages/search?q=Agali"
+curl -X POST $BASE/api/auth/register -H 'Content-Type: application/json' \
+  -d '{"name":"Ada","email":"ada@example.com","password":"at-least-8-chars"}'
+curl -X POST $BASE/api/auth/login -H 'Content-Type: application/json' \
+  -d '{"email":"ada@example.com","password":"at-least-8-chars"}'      # -> data.token
+curl -X POST $BASE/api/keys -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"name":"my first key"}'                                           # -> data.key
+curl -H "x-api-key: $KEY" $BASE/api/usage/me                             # requestsToday, dailyLimit, remaining
 ```
 
-**JSON Response**:
-```json
-{
-  "success": true,
-  "count": 1,
-  "data": [
-    {
-      "code": "622345",
-      "name": "Agali",
-      "subDistrict": "Agali",
-      "district": "Anantapur",
-      "state": "Andhra Pradesh"
-    }
-  ]
-}
-```
+Status codes: `400` validation, `401` missing/invalid credentials, `403` inactive key/account or insufficient plan/role, `404` not found, `429` daily quota exceeded (or too many auth attempts), `503` billing/webhook not configured.
 
----
+## Local setup
 
-## 7. Subscription Tiers & Quotas
+Requirements: Node 20+, a PostgreSQL database (a local container or a free Neon database both work).
 
-| Plan | Price | Daily Quota | Features |
-| :--- | :--- | :--- | :--- |
-| **Free** | $0 | 100 requests | Basic village lookup, 3 API keys |
-| **Pro** | $49/mo | 10,000 requests | Advanced search, analytics, usage trends, unlimited keys |
-| **Enterprise** | Custom | Unlimited | Priority SLA support, dedicated account management |
-
----
-
-## 8. Local Development Setup
-
-### 1. Clone & Dependencies Installation
 ```bash
 git clone https://github.com/likhith1253/village-api.git
-cd village-api
+cd village-api/backend
+cp .env.example .env          # fill in DATABASE_URL and JWT_SECRET (see comments in the file)
+npm install                   # also runs `prisma generate`
+npx prisma migrate deploy     # create tables
+npm run dev                   # http://localhost:3000  (Swagger UI at /api-docs)
+
+# dashboard, in another terminal
+cd ../frontend
+cp .env.example .env
 npm install
-npx prisma generate
+npm run dev                   # http://localhost:5173
 ```
 
-### 2. Configure Environment Files
-Create a `.env` file in the root directory:
-```env
-PORT=3000
-DATABASE_URL="postgresql://user:password@host:port/database?sslmode=require"
-JWT_SECRET="your_jwt_signing_key"
-UPSTASH_REDIS_REST_URL="https://your-caching-instance.upstash.io"
-UPSTASH_REDIS_REST_TOKEN="your_redis_token"
-STRIPE_SECRET_KEY="sk_test_..."
-STRIPE_WEBHOOK_SECRET="whsec_..."
-FRONTEND_URL="http://localhost:5173"
-NODE_ENV="development"
-```
+Only `DATABASE_URL` and `JWT_SECRET` (random, 32+ characters) are required; the server refuses to start without them. Stripe and Upstash are optional (billing returns 503; caching uses the in-memory fallback).
 
-### 3. Initialize Prisma Client
+If you already have a database that was created with `prisma db push`, mark the catch-up migration as applied instead of running it: `npx prisma migrate resolve --applied 20260701000000_sync_schema_drift`.
+
+### Loading the data
+
+The repository bundles `backend/data/all-india-villages-master-list-excel.zip` (about 19 MB, 29 state/UT files named `Rdir_2011_<code>_<STATE>.xls`).
+
 ```bash
-npx prisma db push
+cd backend
+npm run data:extract          # extracts to backend/data/dataset (git-ignored)
+npm run import:sample         # optional: first 100 villages of Bihar to try things out
+npm run import:all            # full import (two passes: in-memory parse, then bulk inserts)
+npm run verify:import         # row counts and sanity checks
 ```
 
-### 4. Running the Servers
-* **Start Backend**:
-  ```bash
-  npm run dev
-  ```
-* **Start Frontend**:
-  ```bash
-  cd frontend
-  npm install
-  npm run dev
-  ```
+Set `DATASET_DIR` (or pass a directory as the first argument) to read the `.xls` files from elsewhere. The importers write to whatever `DATABASE_URL` points at, so check it before running them.
 
----
+### Data source and licence
 
-## 9. Engineering Challenges Solved (Resume Summary)
+The files are the Census of India 2011 village directory (MDDS-coded: state, district, sub-district and village codes). The archive's original download location is not recorded in this repository, and its redistribution terms have not been verified. Government of India open data is commonly published under the Government Open Data License - India (GODL), but confirm the original publisher's terms before reusing the data commercially. Census 2011 boundaries and names are over a decade old, so newer districts and renamed villages are missing.
 
-* **JWT Stale Claims Reconciliation**: Solved the issue of outdated JWT claims (storing user plans at login) by modifying authentication and rate-limiting middlewares to execute lightweight PostgreSQL database lookups, ensuring billing changes propagate instantly without requiring users to log out.
-* **Edge Caching Proxy with Fail-Safe**: Designed a REST caching proxy layer using Upstash Redis. Structured the cache lookup to gracefully fail over to a local in-memory cache to guarantee zero downtime if the remote cache becomes unreachable.
-* **Secure Webhook body Parsing**: Managed Stripe webhook payload signing validation by registering the webhook route raw-body buffer parser *before* standard global JSON middlewares inside Express.
-* **Isolated Multi-Tenant Analytics**: Constructed query filters in the database service layer to scope telemetry graphs to `userId` for standard subscribers, preventing metrics visibility leakage between developer accounts.
+## Tests and tooling
+
+```bash
+cd backend
+npm test        # node:test, no database or network needed (Prisma is faked in-process)
+npm run lint    # eslint
+cd ../frontend && npm run build
+```
+
+The test suite boots the real Express app and checks: every protected route returns 401 without credentials; JWT algorithm/expiry handling; role and plan gates; API-key ownership (IDOR) checks; analytics scoping; Stripe webhook signature handling; error responses not leaking internals; input validation and pagination caps; CORS; rate limits. GitHub Actions (`.github/workflows/ci.yml`) runs install, lint, tests, a production-dependency audit and the frontend build.
+
+## Security notes
+
+- Passwords: bcrypt (cost 10), 8-72 characters. JWTs: HS256 only, verified against a secret that must be 32+ characters.
+- Rate limiting and analytics are computed from the database, not from JWT claims, so plan changes apply immediately.
+- The Stripe webhook is closed unless `STRIPE_WEBHOOK_SECRET` is set and every event must carry a valid signature.
+- 5xx responses return a generic message; details are logged server-side only.
+- The demo login issues a short-lived token that never touches the database; it cannot modify profile or password.
+
+## Limitations
+
+- **API keys are stored in plaintext** in the database and returned by `GET /api/keys` (so the dashboard can show them). Hashing them (show once at creation) is the main planned security improvement; it needs a data migration and a dashboard change.
+- Plan descriptions in the UI mention key-count limits (3 keys on Free) that the backend does not enforce. There is no Enterprise purchase flow; the plan only exists as a manual database value.
+- The daily quota counts `ApiLog` rows with a database query per request and uses the server's local midnight; this is simple but not designed for very high traffic. Log rows are written after the response, so a burst can slightly exceed the limit.
+- The in-memory cache fallback and the login limiter are per process; they do not coordinate across multiple instances.
+- Search is a case-insensitive substring match, with no fuzzy or phonetic matching.
+- Data is Census 2011 only.
+- No load testing or uptime measurements have been done, so there are no performance numbers here.
+- Frontend dev dependencies (Vite/esbuild) and `react-router` 6 have open advisories whose fixes need major upgrades; `xlsx` (import scripts only, a dev dependency) has no upstream fix.
+
+## Deployment
+
+The repo references a Vercel frontend (`censusgrid.vercel.app`) and a Render backend. Those hosted instances were not checked as part of this work. See `backend/.env.example` and `frontend/.env.example` for the variables a deployment needs.
+
+## Screenshots
+
+| | |
+| --- | --- |
+| ![Landing](./screenshots/landing_page.png) | ![Dashboard](./screenshots/dashboard.png) |
+| ![API keys](./screenshots/api_keys.png) | ![Usage](./screenshots/usage.png) |
+| ![Analytics](./screenshots/analytics.png) | ![API explorer](./screenshots/api_explorer.png) |
+
+## License
+
+MIT, see [LICENSE](LICENSE). Contributions: see [CONTRIBUTING.md](CONTRIBUTING.md).

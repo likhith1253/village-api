@@ -45,6 +45,10 @@ export const updateProfile = async (req, res, next) => {
       return errorResponse(res, 'Unauthorized access', 401);
     }
 
+    if (req.user?.isDemo) {
+      return errorResponse(res, 'Not available for the demo account', 403);
+    }
+
     const { name, email } = req.body;
     const updatedUser = await userService.updateUserProfile(userId, { name, email });
     return successResponse(res, 'Profile updated successfully', updatedUser, 200);
@@ -61,6 +65,10 @@ export const updatePassword = async (req, res, next) => {
     const userId = req.user?.userId;
     if (!userId) {
       return errorResponse(res, 'Unauthorized access', 401);
+    }
+
+    if (req.user?.isDemo) {
+      return errorResponse(res, 'Not available for the demo account', 403);
     }
 
     const { currentPassword, newPassword } = req.body;

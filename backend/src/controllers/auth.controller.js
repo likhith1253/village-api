@@ -7,7 +7,6 @@ import { errorResponse } from '../utils/apiError.js';
  * Handles user registration request.
  */
 export const register = async (req, res, next) => {
-  console.log('REGISTER_CONTROLLER_ENTERED');
   try {
     const { name, email, password } = req.body;
 
@@ -19,11 +18,9 @@ export const register = async (req, res, next) => {
     // Call service to handle business logic
     await userService.createUser(name, email, password);
 
-    console.log('REGISTER_CONTROLLER_EXITED');
     // Return success response
     return successResponse(res, 'User registered successfully', null, 201);
   } catch (error) {
-    console.error('REGISTER_CONTROLLER_ERROR', error);
     if (error.statusCode) {
       return errorResponse(res, error.message, error.statusCode);
     }
@@ -53,7 +50,7 @@ export const login = async (req, res, next) => {
         plan: user.plan
       },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { algorithm: 'HS256', expiresIn: '7d' }
     );
 
     return successResponse(res, 'Login successful', {
@@ -88,7 +85,7 @@ export const demoLogin = (req, res) => {
     isDemo: true,
   };
 
-  const token = jwt.sign(demoUser, process.env.JWT_SECRET, { expiresIn: '1h' });
+  const token = jwt.sign(demoUser, process.env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '1h' });
 
   return successResponse(res, 'Demo login successful', {
     token,

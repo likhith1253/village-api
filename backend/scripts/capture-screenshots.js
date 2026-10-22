@@ -192,7 +192,7 @@ async function capture() {
       const title = await page.title();
       console.error(`Page title: ${title}`);
       
-      const bodyHTML = await page.evaluate(() => document.body.innerHTML.substring(0, 1000));
+      const bodyHTML = await page.evaluate(() => globalThis.document.body.innerHTML.substring(0, 1000));
       console.error(`HTML slice: ${bodyHTML}`);
       throw err;
     }

@@ -14,18 +14,13 @@ export const createUser = async (name, email, password) => {
 
   const passwordHash = await bcrypt.hash(password, 10);
 
-  try {
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        passwordHash
-      }
-    });
-    return user;
-  } catch (err) {
-    throw err;
-  }
+  return await prisma.user.create({
+    data: {
+      name,
+      email,
+      passwordHash
+    }
+  });
 };
 
 export const loginUser = async (email, password) => {

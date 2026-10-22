@@ -1,5 +1,6 @@
 import * as subDistrictService from '../services/subDistrict.service.js';
-import redis from '../config/redis.js';
+import { cacheGet, cacheSet } from '../utils/cache.js';
+import { queryString } from '../utils/query.js';
 
 /**
  * Controller to handle fetching sub-districts for a given districtCode.
@@ -7,7 +8,7 @@ import redis from '../config/redis.js';
  */
 export const getSubDistricts = async (req, res, next) => {
   try {
-    const { districtCode } = req.query;
+    const districtCode = queryString(req.query.districtCode);
 
     // Validation: districtCode is required
     if (!districtCode) {
@@ -18,18 +19,15 @@ export const getSubDistricts = async (req, res, next) => {
     }
 
     const cacheKey = `subdistricts:${districtCode.toLowerCase()}`;
-    const cached = await redis.get(cacheKey);
+    const cached = await cacheGet(cacheKey);
     if (cached) {
-      console.log('CACHE HIT');
-      const data = typeof cached === 'string' ? JSON.parse(cached) : cached;
       return res.status(200).json({
         success: true,
-        count: data.length,
-        data: data
+        count: cached.length,
+        data: cached
       });
     }
 
-    console.log('CACHE MISS');
     const subDistricts = await subDistrictService.getSubDistrictsByDistrict(districtCode);
 
     // Error Handling: District not found
@@ -40,7 +38,7 @@ export const getSubDistricts = async (req, res, next) => {
       });
     }
 
-    await redis.set(cacheKey, JSON.stringify(subDistricts), { ex: 3600 });
+    await cacheSet(cacheKey, subDistricts);
 
     // Success response
     return res.status(200).json({

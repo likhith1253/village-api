@@ -1,5 +1,6 @@
 import * as districtService from '../services/district.service.js';
-import redis from '../config/redis.js';
+import { cacheGet, cacheSet } from '../utils/cache.js';
+import { queryString } from '../utils/query.js';
 
 /**
  * Controller to handle fetching districts for a given stateCode.
@@ -7,7 +8,7 @@ import redis from '../config/redis.js';
  */
 export const getDistricts = async (req, res, next) => {
   try {
-    const { stateCode } = req.query;
+    const stateCode = queryString(req.query.stateCode);
 
     // Validation: stateCode is required
     if (!stateCode) {
@@ -18,18 +19,15 @@ export const getDistricts = async (req, res, next) => {
     }
 
     const cacheKey = `districts:${stateCode.toLowerCase()}`;
-    const cached = await redis.get(cacheKey);
+    const cached = await cacheGet(cacheKey);
     if (cached) {
-      console.log('CACHE HIT');
-      const data = typeof cached === 'string' ? JSON.parse(cached) : cached;
       return res.status(200).json({
         success: true,
-        count: data.length,
-        data: data
+        count: cached.length,
+        data: cached
       });
     }
 
-    console.log('CACHE MISS');
     const districts = await districtService.getDistrictsByState(stateCode);
 
     // Error Handling: State not found
@@ -40,7 +38,7 @@ export const getDistricts = async (req, res, next) => {
       });
     }
 
-    await redis.set(cacheKey, JSON.stringify(districts), { ex: 3600 });
+    await cacheSet(cacheKey, districts);
 
     // Success response
     return res.status(200).json({

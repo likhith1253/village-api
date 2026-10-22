@@ -1,6 +1,6 @@
 import XLSX from 'xlsx';
 import fs from 'fs';
-import path from 'path';
+import { BIHAR_FILE } from './lib/dataset.js';
 
 /**
  * Script to analyze a single Excel dataset file for the Village API SaaS Platform importer foundation.
@@ -10,7 +10,7 @@ import path from 'path';
  */
 
 // 1. Path of the file to read as per the requirement
-const FILE_PATH = 'D:\\dataset\\Rdir_2011_10_BIHAR.xls';
+const FILE_PATH = BIHAR_FILE;
 
 function main() {
   console.log('==================================================');

@@ -6,7 +6,14 @@
     "start": "node src/server.js",
     "dev": "node src/server.js",
     "postinstall": "prisma generate",
-    "seed:demo": "node src/scripts/seedDemoUser.js"
+    "seed:demo": "node scripts/seedDemoUser.js",
+    "test": "node --test tests/",
+    "lint": "eslint src tests scripts",
+    "data:extract": "node scripts/extractDataset.js",
+    "import:all": "node scripts/importAllStates.js",
+    "import:sample": "node scripts/importBiharSample.js",
+    "verify:import": "node scripts/verifyImport.js",
+    "audit:codes": "node scripts/auditCodeUniqueness.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -24,11 +31,17 @@
     "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.3",
     "prisma": "^6.9.0",
-    "puppeteer-core": "^24.43.1",
     "stripe": "^22.2.0",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1",
-    "xlsx": "^0.18.5",
     "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "puppeteer-core": "^24.43.1",
+    "xlsx": "^0.18.5"
   }
 }

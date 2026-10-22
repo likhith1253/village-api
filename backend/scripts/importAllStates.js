@@ -1,7 +1,8 @@
-﻿import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import XLSX from 'xlsx';
 import fs from 'fs';
 import path from 'path';
+import { DATASET_DIR } from './lib/dataset.js';
 
 /**
  * Village API — Production Bulk Importer (Final)
@@ -38,7 +39,6 @@ import path from 'path';
 // Configuration
 // ─────────────────────────────────────────────────────────────────────────────
 
-const DATASET_DIR       = 'D:\\dataset';
 const VILLAGE_BATCH_SIZE = 2000;
 
 // ─────────────────────────────────────────────────────────────────────────────
